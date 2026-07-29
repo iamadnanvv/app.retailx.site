@@ -1,4 +1,8 @@
-import type { UserResource } from "@clerk/types";
+type UserResource = {
+  unsafeMetadata: Record<string, unknown>;
+  update: (params: { unsafeMetadata: Record<string, unknown> }) => Promise<unknown>;
+};
+
 
 export interface OnboardingState {
   completed: boolean;
