@@ -70,7 +70,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <span className="font-display hidden text-sm font-semibold tracking-tight md:block">
             Workspace
           </span>
-          <UserButton afterSignOutUrl="/" />
+          <UserButton />
         </header>
 
         <div className="animate-pop px-4 py-8 md:px-8 md:py-10">{children}</div>
