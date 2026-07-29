@@ -56,13 +56,27 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
-          <MagneticButton variant="ghost" size="sm" to="/docs">
-            Sign in
-          </MagneticButton>
-          <MagneticButton size="sm" to="/pricing">
-            Start free
-          </MagneticButton>
+          <ClerkLoaded>
+            {isSignedIn ? (
+              <>
+                <MagneticButton variant="glass" size="sm" to="/dashboard">
+                  Dashboard
+                </MagneticButton>
+                <UserButton />
+              </>
+            ) : (
+              <>
+                <MagneticButton variant="ghost" size="sm" href="/sign-in">
+                  Sign in
+                </MagneticButton>
+                <MagneticButton size="sm" href="/sign-up">
+                  Start free
+                </MagneticButton>
+              </>
+            )}
+          </ClerkLoaded>
         </div>
+
 
         <button
           type="button"

@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TemplatesRouteImport } from './routes/templates'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
@@ -35,6 +36,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketplaceRoute = MarketplaceRouteImport.update({
@@ -86,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/docs': typeof DocsRoute
   '/marketplace': typeof MarketplaceRoute
+  '/onboarding': typeof OnboardingRoute
   '/pricing': typeof PricingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/templates': typeof TemplatesRoute
@@ -99,6 +106,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/docs': typeof DocsRoute
   '/marketplace': typeof MarketplaceRoute
+  '/onboarding': typeof OnboardingRoute
   '/pricing': typeof PricingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/templates': typeof TemplatesRoute
@@ -114,6 +122,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteRouteWithChildren
   '/docs': typeof DocsRoute
   '/marketplace': typeof MarketplaceRoute
+  '/onboarding': typeof OnboardingRoute
   '/pricing': typeof PricingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/templates': typeof TemplatesRoute
@@ -129,6 +138,7 @@ export interface FileRouteTypes {
     | '/'
     | '/docs'
     | '/marketplace'
+    | '/onboarding'
     | '/pricing'
     | '/sitemap.xml'
     | '/templates'
@@ -142,6 +152,7 @@ export interface FileRouteTypes {
     | '/'
     | '/docs'
     | '/marketplace'
+    | '/onboarding'
     | '/pricing'
     | '/sitemap.xml'
     | '/templates'
@@ -156,6 +167,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/docs'
     | '/marketplace'
+    | '/onboarding'
     | '/pricing'
     | '/sitemap.xml'
     | '/templates'
@@ -171,6 +183,7 @@ export interface RootRouteChildren {
   AppRouteRoute: typeof AppRouteRouteWithChildren
   DocsRoute: typeof DocsRoute
   MarketplaceRoute: typeof MarketplaceRoute
+  OnboardingRoute: typeof OnboardingRoute
   PricingRoute: typeof PricingRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TemplatesRoute: typeof TemplatesRoute
@@ -199,6 +212,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/marketplace': {
@@ -288,6 +308,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRouteRoute: AppRouteRouteWithChildren,
   DocsRoute: DocsRoute,
   MarketplaceRoute: MarketplaceRoute,
+  OnboardingRoute: OnboardingRoute,
   PricingRoute: PricingRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TemplatesRoute: TemplatesRoute,
