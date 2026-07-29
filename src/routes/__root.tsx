@@ -134,7 +134,15 @@ function RootComponent() {
   const isAppSurface = APP_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 
   return (
-    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY} appearance={clerkAppearance}>
+    <ClerkProvider
+      publishableKey={CLERK_PUBLISHABLE_KEY}
+      appearance={clerkAppearance}
+      signInUrl="/sign-in"
+      signUpUrl="/sign-up"
+      signInFallbackRedirectUrl="/dashboard"
+      signUpFallbackRedirectUrl="/onboarding"
+      afterSignOutUrl="/"
+    >
       <QueryClientProvider client={queryClient}>
         <AuroraBackground />
         {!isAppSurface && <SiteHeader />}
