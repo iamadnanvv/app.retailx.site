@@ -18,6 +18,7 @@ import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SignUpSplatRouteImport } from './routes/sign-up.$'
 import { Route as SignInSplatRouteImport } from './routes/sign-in.$'
+import { Route as AppTeamRouteImport } from './routes/_app/team'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 
@@ -65,6 +66,11 @@ const SignInSplatRoute = SignInSplatRouteImport.update({
   path: '/sign-in/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppTeamRoute = AppTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -85,6 +91,7 @@ export interface FileRoutesByFullPath {
   '/templates': typeof TemplatesRoute
   '/dashboard': typeof AppDashboardRoute
   '/settings': typeof AppSettingsRoute
+  '/team': typeof AppTeamRoute
   '/sign-in/$': typeof SignInSplatRoute
   '/sign-up/$': typeof SignUpSplatRoute
 }
@@ -97,6 +104,7 @@ export interface FileRoutesByTo {
   '/templates': typeof TemplatesRoute
   '/dashboard': typeof AppDashboardRoute
   '/settings': typeof AppSettingsRoute
+  '/team': typeof AppTeamRoute
   '/sign-in/$': typeof SignInSplatRoute
   '/sign-up/$': typeof SignUpSplatRoute
 }
@@ -111,6 +119,7 @@ export interface FileRoutesById {
   '/templates': typeof TemplatesRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/settings': typeof AppSettingsRoute
+  '/_app/team': typeof AppTeamRoute
   '/sign-in/$': typeof SignInSplatRoute
   '/sign-up/$': typeof SignUpSplatRoute
 }
@@ -125,6 +134,7 @@ export interface FileRouteTypes {
     | '/templates'
     | '/dashboard'
     | '/settings'
+    | '/team'
     | '/sign-in/$'
     | '/sign-up/$'
   fileRoutesByTo: FileRoutesByTo
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/templates'
     | '/dashboard'
     | '/settings'
+    | '/team'
     | '/sign-in/$'
     | '/sign-up/$'
   id:
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/templates'
     | '/_app/dashboard'
     | '/_app/settings'
+    | '/_app/team'
     | '/sign-in/$'
     | '/sign-up/$'
   fileRoutesById: FileRoutesById
@@ -231,6 +243,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignInSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/team': {
+      id: '/_app/team'
+      path: '/team'
+      fullPath: '/team'
+      preLoaderRoute: typeof AppTeamRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/settings': {
       id: '/_app/settings'
       path: '/settings'
@@ -251,11 +270,13 @@ declare module '@tanstack/react-router' {
 interface AppRouteRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
   AppSettingsRoute: typeof AppSettingsRoute
+  AppTeamRoute: typeof AppTeamRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppSettingsRoute: AppSettingsRoute,
+  AppTeamRoute: AppTeamRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
