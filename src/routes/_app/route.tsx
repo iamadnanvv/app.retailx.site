@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { SignedIn, SignedOut, RedirectToSignIn, ClerkLoaded, ClerkLoading } from "@clerk/tanstack-react-start";
+import { useAuth, RedirectToSignIn, ClerkLoaded, ClerkLoading } from "@clerk/tanstack-react-start";
 import { AppShell } from "@/components/app/app-shell";
 
 export const Route = createFileRoute("/_app")({
@@ -9,23 +9,32 @@ export const Route = createFileRoute("/_app")({
   component: AppLayout,
 });
 
+function Spinner() {
+  return (
+    <div className="grid min-h-screen place-items-center">
+      <div className="border-primary/30 border-t-primary size-8 animate-spin rounded-full border-2" />
+    </div>
+  );
+}
+
+function Gate() {
+  const { isSignedIn } = useAuth();
+  if (!isSignedIn) return <RedirectToSignIn />;
+  return (
+    <AppShell>
+      <Outlet />
+    </AppShell>
+  );
+}
+
 function AppLayout() {
   return (
     <>
       <ClerkLoading>
-        <div className="grid min-h-screen place-items-center">
-          <div className="border-primary/30 border-t-primary size-8 animate-spin rounded-full border-2" />
-        </div>
+        <Spinner />
       </ClerkLoading>
       <ClerkLoaded>
-        <SignedIn>
-          <AppShell>
-            <Outlet />
-          </AppShell>
-        </SignedIn>
-        <SignedOut>
-          <RedirectToSignIn />
-        </SignedOut>
+        <Gate />
       </ClerkLoaded>
     </>
   );
