@@ -1,5 +1,5 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { useAuth, RedirectToSignIn, ClerkLoaded, ClerkLoading } from "@clerk/tanstack-react-start";
+import { createFileRoute, Outlet, Navigate } from "@tanstack/react-router";
+import { useAuth, ClerkLoaded, ClerkLoading } from "@clerk/tanstack-react-start";
 import { AppShell } from "@/components/app/app-shell";
 
 export const Route = createFileRoute("/_app")({
@@ -19,7 +19,9 @@ function Spinner() {
 
 function Gate() {
   const { isSignedIn } = useAuth();
-  if (!isSignedIn) return <RedirectToSignIn />;
+  if (!isSignedIn) {
+    return <Navigate to="/sign-in" search={{ redirect_url: typeof window !== "undefined" ? window.location.pathname : "/" }} replace />;
+  }
   return (
     <AppShell>
       <Outlet />

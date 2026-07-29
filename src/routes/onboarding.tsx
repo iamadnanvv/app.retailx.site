@@ -1,5 +1,5 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useAuth, useUser, RedirectToSignIn, ClerkLoaded, ClerkLoading } from "@clerk/tanstack-react-start";
+import { createFileRoute, useNavigate, Navigate } from "@tanstack/react-router";
+import { useAuth, useUser, ClerkLoaded, ClerkLoading } from "@clerk/tanstack-react-start";
 import { useState } from "react";
 import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
 import {
@@ -44,7 +44,9 @@ function OnboardingRoute() {
 
 function Gate() {
   const { isSignedIn } = useAuth();
-  if (!isSignedIn) return <RedirectToSignIn />;
+  if (!isSignedIn) {
+    return <Navigate to="/sign-in" search={{ redirect_url: typeof window !== "undefined" ? window.location.pathname : "/" }} replace />;
+  }
   return <Wizard />;
 }
 
