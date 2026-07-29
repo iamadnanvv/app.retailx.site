@@ -1,5 +1,6 @@
 import { createStart, createCsrfMiddleware, createMiddleware } from "@tanstack/react-start";
 import { clerkMiddleware } from "@clerk/tanstack-react-start/server";
+import { CLERK_PUBLISHABLE_KEY } from "./lib/clerk";
 
 
 import { renderErrorPage } from "./lib/error-page";
@@ -27,6 +28,6 @@ const csrfMiddleware = createCsrfMiddleware({
 });
 
 export const startInstance = createStart(() => ({
-  requestMiddleware: [errorMiddleware, csrfMiddleware, clerkMiddleware()],
+  requestMiddleware: [errorMiddleware, csrfMiddleware, clerkMiddleware({ publishableKey: CLERK_PUBLISHABLE_KEY })],
 }));
 
