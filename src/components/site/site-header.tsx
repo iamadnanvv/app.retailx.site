@@ -1,8 +1,10 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { ClerkLoaded, UserButton, useAuth } from "@clerk/tanstack-react-start";
 import { MagneticButton } from "@/components/site/magnetic-button";
 import { cn } from "@/lib/utils";
+
 
 const nav = [
   { label: "Product", to: "/" },
