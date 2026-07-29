@@ -15,6 +15,9 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuroraBackground } from "@/components/site/aurora-background";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
+import { ClerkProvider } from "@clerk/tanstack-react-start";
+import { CLERK_PUBLISHABLE_KEY, clerkAppearance } from "@/lib/clerk";
+
 
 
 function NotFoundComponent() {
