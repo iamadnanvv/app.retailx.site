@@ -15,6 +15,9 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuroraBackground } from "@/components/site/aurora-background";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
+import { ClerkProvider } from "@clerk/tanstack-react-start";
+import { CLERK_PUBLISHABLE_KEY, clerkAppearance } from "@/lib/clerk";
+
 
 
 function NotFoundComponent() {
@@ -123,20 +126,37 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+const APP_PREFIXES = ["/dashboard", "/onboarding", "/settings", "/team", "/sign-in", "/sign-up"];
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isAppSurface = APP_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuroraBackground />
-      <SiteHeader />
-      <main key={pathname} className="animate-pop min-h-screen pt-24">
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-      </main>
-      <SiteFooter />
-    </QueryClientProvider>
+    <ClerkProvider
+      publishableKey={CLERK_PUBLISHABLE_KEY}
+      appearance={clerkAppearance}
+      signInUrl="/sign-in"
+      signUpUrl="/sign-up"
+      signInFallbackRedirectUrl="/dashboard"
+      signUpFallbackRedirectUrl="/onboarding"
+      afterSignOutUrl="/"
+    >
+      <QueryClientProvider client={queryClient}>
+        <AuroraBackground />
+        {!isAppSurface && <SiteHeader />}
+        <main
+          key={pathname}
+          className={isAppSurface ? "min-h-screen" : "animate-pop min-h-screen pt-24"}
+        >
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+        </main>
+        {!isAppSurface && <SiteFooter />}
+      </QueryClientProvider>
+    </ClerkProvider>
   );
 }
+
 

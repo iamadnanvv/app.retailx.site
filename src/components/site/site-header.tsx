@@ -1,8 +1,10 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { ClerkLoaded, UserButton, useAuth } from "@clerk/tanstack-react-start";
 import { MagneticButton } from "@/components/site/magnetic-button";
 import { cn } from "@/lib/utils";
+
 
 const nav = [
   { label: "Product", to: "/" },
@@ -16,6 +18,8 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { isSignedIn } = useAuth();
+
 
   useEffect(() => setOpen(false), [pathname]);
 
@@ -56,13 +60,27 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
-          <MagneticButton variant="ghost" size="sm" to="/docs">
-            Sign in
-          </MagneticButton>
-          <MagneticButton size="sm" to="/pricing">
-            Start free
-          </MagneticButton>
+          <ClerkLoaded>
+            {isSignedIn ? (
+              <>
+                <MagneticButton variant="glass" size="sm" to="/dashboard">
+                  Dashboard
+                </MagneticButton>
+                <UserButton />
+              </>
+            ) : (
+              <>
+                <MagneticButton variant="ghost" size="sm" href="/sign-in">
+                  Sign in
+                </MagneticButton>
+                <MagneticButton size="sm" href="/sign-up">
+                  Start free
+                </MagneticButton>
+              </>
+            )}
+          </ClerkLoaded>
         </div>
+
 
         <button
           type="button"
@@ -89,9 +107,10 @@ export function SiteHeader() {
             ))}
           </nav>
           <div className="mt-2 grid gap-2 px-1 pb-1">
-            <MagneticButton to="/pricing" className="w-full">
-              Start free
+            <MagneticButton href={isSignedIn ? "/dashboard" : "/sign-up"} className="w-full">
+              {isSignedIn ? "Go to dashboard" : "Start free"}
             </MagneticButton>
+
           </div>
         </div>
       )}
