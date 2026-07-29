@@ -18,6 +18,8 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { isSignedIn } = useAuth();
+
 
   useEffect(() => setOpen(false), [pathname]);
 
