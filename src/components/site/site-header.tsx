@@ -107,9 +107,10 @@ export function SiteHeader() {
             ))}
           </nav>
           <div className="mt-2 grid gap-2 px-1 pb-1">
-            <MagneticButton to="/pricing" className="w-full">
-              Start free
+            <MagneticButton href={isSignedIn ? "/dashboard" : "/sign-up"} className="w-full">
+              {isSignedIn ? "Go to dashboard" : "Start free"}
             </MagneticButton>
+
           </div>
         </div>
       )}
