@@ -1,11 +1,12 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { UserButton } from "@clerk/tanstack-react-start";
-import { LayoutDashboard, Users, Settings, Sparkles } from "lucide-react";
+import { LayoutDashboard, Users, Settings, Sparkles, PencilRuler } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 const nav = [
   { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
+  { label: "Projects", to: "/projects", icon: PencilRuler },
   { label: "Team", to: "/team", icon: Users },
   { label: "Settings", to: "/settings", icon: Settings },
 ] as const;

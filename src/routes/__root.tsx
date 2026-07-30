@@ -17,6 +17,7 @@ import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { ClerkProvider } from "@clerk/tanstack-react-start";
 import { CLERK_PUBLISHABLE_KEY, clerkAppearance } from "@/lib/clerk";
+import { Toaster } from "@/components/ui/sonner";
 
 
 
@@ -154,6 +155,7 @@ function RootComponent() {
           <Outlet />
         </main>
         {!isAppSurface && <SiteFooter />}
+        <Toaster position="bottom-right" />
       </QueryClientProvider>
     </ClerkProvider>
   );
