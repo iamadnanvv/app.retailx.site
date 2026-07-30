@@ -19,9 +19,12 @@ import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SignUpSplatRouteImport } from './routes/sign-up.$'
 import { Route as SignInSplatRouteImport } from './routes/sign-in.$'
+import { Route as PreviewProjectIdRouteImport } from './routes/preview.$projectId'
 import { Route as AppTeamRouteImport } from './routes/_app/team'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
+import { Route as AppProjectsRouteImport } from './routes/_app/projects'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as AppEditorProjectIdRouteImport } from './routes/_app/editor.$projectId'
 
 const TemplatesRoute = TemplatesRouteImport.update({
   id: '/templates',
@@ -72,6 +75,11 @@ const SignInSplatRoute = SignInSplatRouteImport.update({
   path: '/sign-in/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PreviewProjectIdRoute = PreviewProjectIdRouteImport.update({
+  id: '/preview/$projectId',
+  path: '/preview/$projectId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppTeamRoute = AppTeamRouteImport.update({
   id: '/team',
   path: '/team',
@@ -82,9 +90,19 @@ const AppSettingsRoute = AppSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppProjectsRoute = AppProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppEditorProjectIdRoute = AppEditorProjectIdRouteImport.update({
+  id: '/editor/$projectId',
+  path: '/editor/$projectId',
   getParentRoute: () => AppRouteRoute,
 } as any)
 
@@ -97,10 +115,13 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/templates': typeof TemplatesRoute
   '/dashboard': typeof AppDashboardRoute
+  '/projects': typeof AppProjectsRoute
   '/settings': typeof AppSettingsRoute
   '/team': typeof AppTeamRoute
+  '/preview/$projectId': typeof PreviewProjectIdRoute
   '/sign-in/$': typeof SignInSplatRoute
   '/sign-up/$': typeof SignUpSplatRoute
+  '/editor/$projectId': typeof AppEditorProjectIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -111,10 +132,13 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/templates': typeof TemplatesRoute
   '/dashboard': typeof AppDashboardRoute
+  '/projects': typeof AppProjectsRoute
   '/settings': typeof AppSettingsRoute
   '/team': typeof AppTeamRoute
+  '/preview/$projectId': typeof PreviewProjectIdRoute
   '/sign-in/$': typeof SignInSplatRoute
   '/sign-up/$': typeof SignUpSplatRoute
+  '/editor/$projectId': typeof AppEditorProjectIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -127,10 +151,13 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/templates': typeof TemplatesRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/projects': typeof AppProjectsRoute
   '/_app/settings': typeof AppSettingsRoute
   '/_app/team': typeof AppTeamRoute
+  '/preview/$projectId': typeof PreviewProjectIdRoute
   '/sign-in/$': typeof SignInSplatRoute
   '/sign-up/$': typeof SignUpSplatRoute
+  '/_app/editor/$projectId': typeof AppEditorProjectIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -143,10 +170,13 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/templates'
     | '/dashboard'
+    | '/projects'
     | '/settings'
     | '/team'
+    | '/preview/$projectId'
     | '/sign-in/$'
     | '/sign-up/$'
+    | '/editor/$projectId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -157,10 +187,13 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/templates'
     | '/dashboard'
+    | '/projects'
     | '/settings'
     | '/team'
+    | '/preview/$projectId'
     | '/sign-in/$'
     | '/sign-up/$'
+    | '/editor/$projectId'
   id:
     | '__root__'
     | '/'
@@ -172,10 +205,13 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/templates'
     | '/_app/dashboard'
+    | '/_app/projects'
     | '/_app/settings'
     | '/_app/team'
+    | '/preview/$projectId'
     | '/sign-in/$'
     | '/sign-up/$'
+    | '/_app/editor/$projectId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -187,6 +223,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TemplatesRoute: typeof TemplatesRoute
+  PreviewProjectIdRoute: typeof PreviewProjectIdRoute
   SignInSplatRoute: typeof SignInSplatRoute
   SignUpSplatRoute: typeof SignUpSplatRoute
 }
@@ -263,6 +300,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignInSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/preview/$projectId': {
+      id: '/preview/$projectId'
+      path: '/preview/$projectId'
+      fullPath: '/preview/$projectId'
+      preLoaderRoute: typeof PreviewProjectIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_app/team': {
       id: '/_app/team'
       path: '/team'
@@ -277,6 +321,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/projects': {
+      id: '/_app/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof AppProjectsRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/dashboard': {
       id: '/_app/dashboard'
       path: '/dashboard'
@@ -284,19 +335,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/editor/$projectId': {
+      id: '/_app/editor/$projectId'
+      path: '/editor/$projectId'
+      fullPath: '/editor/$projectId'
+      preLoaderRoute: typeof AppEditorProjectIdRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
   }
 }
 
 interface AppRouteRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
+  AppProjectsRoute: typeof AppProjectsRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppTeamRoute: typeof AppTeamRoute
+  AppEditorProjectIdRoute: typeof AppEditorProjectIdRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
+  AppProjectsRoute: AppProjectsRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppTeamRoute: AppTeamRoute,
+  AppEditorProjectIdRoute: AppEditorProjectIdRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
@@ -312,6 +374,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TemplatesRoute: TemplatesRoute,
+  PreviewProjectIdRoute: PreviewProjectIdRoute,
   SignInSplatRoute: SignInSplatRoute,
   SignUpSplatRoute: SignUpSplatRoute,
 }
