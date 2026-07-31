@@ -300,12 +300,12 @@ ${p.eyebrow ? `<div style="display:inline-block;padding:6px 14px;border-radius:9
     case "image":
       return `<img src="${escapeHtml(p.src)}" alt="${escapeHtml(p.alt)}" loading="lazy" style="width:100%;height:auto;display:block;border-radius:inherit"/>`;
     case "gallery":
-      return list(p.images)
+      return `<div class="rx-grid">${list(p.images)
         .map(
           (src) =>
             `<img src="${escapeHtml(src)}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;aspect-ratio:4/3;border-radius:${t.radius}px"/>`,
         )
-        .join("");
+        .join("")}</div>`;
     case "features":
       return `${p.title ? `<h2 style="font-size:38px;letter-spacing:-.02em;margin:0 0 32px">${escapeHtml(p.title)}</h2>` : ""}
 <div class="rx-grid">${list(p.items)
