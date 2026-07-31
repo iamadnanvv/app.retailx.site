@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Check, Database, Moon, Smartphone } from "lucide-react";
 import { useMemo, useState } from "react";
-import { MagneticButton } from "@/components/site/magnetic-button";
 import { Reveal } from "@/components/site/reveal";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -112,9 +111,25 @@ function Templates() {
           ))}
         </Reveal>
 
-        <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Reveal delay={140} className="mt-6">
+          <label className="sr-only" htmlFor="template-search">
+            Search templates
+          </label>
+          <input
+            id="template-search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={`Search ${landingTemplates.length} landing pages…`}
+            className="glass w-full rounded-2xl px-5 py-3 text-sm outline-none sm:max-w-md"
+          />
+          <p className="text-muted-foreground mt-3 text-xs">
+            Showing {visible.length} of {landingTemplates.length} templates
+          </p>
+        </Reveal>
+
+        <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {visible.map((template, i) => (
-            <Reveal key={template.name} delay={i * 60}>
+            <Reveal key={template.slug} delay={i * 60}>
               <article className="glass hover:border-primary/40 group flex h-full flex-col rounded-3xl p-6 transition-all duration-300 hover:-translate-y-1">
                 <div
                   className="aurora relative h-40 overflow-hidden rounded-2xl"
@@ -134,7 +149,7 @@ function Templates() {
 
                 <div className="mt-6 flex items-center justify-between">
                   <h2 className="font-display text-lg font-semibold">{template.name}</h2>
-                  <span className={cn("text-xs font-medium", accentClass[template.accent])}>
+                  <span className="text-xs font-medium" style={{ color: template.accent }}>
                     {template.category}
                   </span>
                 </div>
@@ -149,23 +164,25 @@ function Templates() {
                   <span className="inline-flex items-center gap-1">
                     <Moon className="size-3.5" /> Dark mode
                   </span>
-                  {template.cms && (
-                    <span className="inline-flex items-center gap-1">
-                      <Database className="size-3.5" /> CMS
-                    </span>
-                  )}
+                  <span className="inline-flex items-center gap-1">
+                    <Database className="size-3.5" /> CMS
+                  </span>
                 </div>
 
                 <div className="mt-5 grid gap-2.5">
-                  <Score label="SEO" value={template.seo} />
-                  <Score label="Accessibility" value={template.a11y} />
-                  <Score label="Performance" value={template.perf} />
+                  <Score label="SEO" value={templateScores(template).seo} />
+                  <Score label="Accessibility" value={templateScores(template).a11y} />
+                  <Score label="Performance" value={templateScores(template).perf} />
                 </div>
 
                 <div className="mt-6 flex-1" />
-                <MagneticButton variant="glass" size="sm" to="/pricing" className="w-full">
-                  <Check className="size-4" /> Duplicate template
-                </MagneticButton>
+                <button
+                  type="button"
+                  onClick={() => useTemplate(template.slug)}
+                  className="bg-primary text-primary-foreground inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition hover:brightness-110 active:scale-95"
+                >
+                  <Check className="size-4" /> Use this template
+                </button>
               </article>
             </Reveal>
           ))}
