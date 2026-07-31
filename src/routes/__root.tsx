@@ -127,7 +127,17 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
-const APP_PREFIXES = ["/dashboard", "/onboarding", "/settings", "/team", "/sign-in", "/sign-up"];
+const APP_PREFIXES = [
+  "/dashboard",
+  "/onboarding",
+  "/settings",
+  "/team",
+  "/sign-in",
+  "/sign-up",
+  "/projects",
+  "/editor",
+  "/preview",
+];
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
