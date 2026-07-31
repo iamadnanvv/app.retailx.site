@@ -49,7 +49,7 @@ export function baseCss(theme: ProjectTheme) {
   return `*{box-sizing:border-box}
 body{margin:0;background:${theme.background};color:${theme.foreground};font-family:${theme.font};-webkit-font-smoothing:antialiased}
 img{max-width:100%}
-.rx-grid{display:grid;grid-template-columns:repeat(var(--rx-cols,3),minmax(0,1fr));gap:inherit}
+.rx-grid{display:grid;grid-template-columns:repeat(var(--rx-cols,3),minmax(0,1fr));gap:var(--rx-gap,16px)}
 .rx-btn{transition:transform .18s ease,filter .18s ease}
 .rx-btn:hover{transform:translateY(-2px);filter:brightness(1.08)}
 .rx-anim{opacity:0;transform:translateY(18px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
