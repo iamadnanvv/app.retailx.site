@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 
-// TODO: replace with your project URL once a project name or custom domain is set.
-const BASE_URL = "";
+// Sitemap URLs must be absolute; derive the origin from the incoming request so
+// preview, published and custom-domain deployments all emit correct <loc> values.
+const FALLBACK_ORIGIN = "https://build-sparkle-site-25.lovable.app";
 
 interface SitemapEntry {
   path: string;
@@ -14,7 +15,14 @@ interface SitemapEntry {
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
-      GET: async () => {
+      GET: async ({ request }) => {
+        const origin = (() => {
+          try {
+            return new URL(request.url).origin;
+          } catch {
+            return FALLBACK_ORIGIN;
+          }
+        })();
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
           { path: "/templates", changefreq: "weekly", priority: "0.9" },
@@ -26,7 +34,7 @@ export const Route = createFileRoute("/sitemap.xml")({
         const urls = entries.map((e) =>
           [
             `  <url>`,
-            `    <loc>${BASE_URL}${e.path}</loc>`,
+            `    <loc>${origin}${e.path}</loc>`,
             e.lastmod ? `    <lastmod>${e.lastmod}</lastmod>` : null,
             e.changefreq ? `    <changefreq>${e.changefreq}</changefreq>` : null,
             e.priority ? `    <priority>${e.priority}</priority>` : null,

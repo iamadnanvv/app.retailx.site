@@ -29,6 +29,22 @@ import { uid, type BlockType, type Breakpoint, type NodeStyle } from "@/lib/buil
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/editor/$projectId")({
+  head: () => ({
+    meta: [
+      { title: "Visual editor — RetailX" },
+      {
+        name: "description",
+        content: "Design pages on an infinite canvas with responsive breakpoints and instant publishing.",
+      },
+      { property: "og:title", content: "Visual editor — RetailX" },
+      {
+        property: "og:description",
+        content: "Design pages on an infinite canvas with responsive breakpoints and instant publishing.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: EditorPage,
 });
 

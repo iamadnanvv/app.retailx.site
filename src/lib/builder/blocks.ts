@@ -287,7 +287,7 @@ export function renderNodeHtml(node: BuilderNode, theme: ProjectTheme): string {
 ${p.eyebrow ? `<div style="display:inline-block;padding:6px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);font-size:13px;color:${t.muted};margin-bottom:20px">${escapeHtml(p.eyebrow)}</div>` : ""}
 <h1 style="font-size:clamp(38px,6vw,76px);line-height:1.02;letter-spacing:-.03em;margin:0 0 18px">${escapeHtml(p.title).replace(/\n/g, "<br/>")}</h1>
 <p style="font-size:clamp(16px,2vw,20px);color:${t.muted};margin:0 auto 30px;max-width:640px">${escapeHtml(p.subtitle)}</p>
-<div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:inherit">${btn(p.primary, p.primaryHref)}${p.secondary ? btn(p.secondary, "#", false) : ""}</div>`;
+<div style="display:inline-flex;gap:12px;flex-wrap:wrap">${btn(p.primary, p.primaryHref)}${p.secondary ? btn(p.secondary, "#", false) : ""}</div>`;
     case "heading": {
       const lvl = Math.min(4, Math.max(1, Number(p.level) || 2));
       const size = [58, 42, 30, 22][lvl - 1];
@@ -300,12 +300,12 @@ ${p.eyebrow ? `<div style="display:inline-block;padding:6px 14px;border-radius:9
     case "image":
       return `<img src="${escapeHtml(p.src)}" alt="${escapeHtml(p.alt)}" loading="lazy" style="width:100%;height:auto;display:block;border-radius:inherit"/>`;
     case "gallery":
-      return list(p.images)
+      return `<div class="rx-grid">${list(p.images)
         .map(
           (src) =>
             `<img src="${escapeHtml(src)}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;aspect-ratio:4/3;border-radius:${t.radius}px"/>`,
         )
-        .join("");
+        .join("")}</div>`;
     case "features":
       return `${p.title ? `<h2 style="font-size:38px;letter-spacing:-.02em;margin:0 0 32px">${escapeHtml(p.title)}</h2>` : ""}
 <div class="rx-grid">${list(p.items)

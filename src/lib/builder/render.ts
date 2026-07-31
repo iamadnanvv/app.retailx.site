@@ -23,8 +23,6 @@ function innerCss(s: NodeStyle): string {
     `max-width:${s.maxWidth ?? 1100}px`,
     "margin:0 auto",
     s.radius ? `border-radius:${s.radius}px;overflow:hidden` : "",
-    s.columns ? `display:grid;grid-template-columns:repeat(${s.columns},minmax(0,1fr));gap:${s.gap ?? 16}px` : "",
-    s.align === "center" ? "justify-content:center" : s.align === "right" ? "justify-content:flex-end" : "",
   ].filter(Boolean);
   return parts.join(";");
 }
@@ -33,11 +31,14 @@ function innerCss(s: NodeStyle): string {
 export function renderNode(node: BuilderNode, theme: ProjectTheme, bp: "base" | "tablet" | "mobile") {
   const s = mergeStyle(node, bp);
   const cols = s.columns ?? 0;
-  const gridStyle =
+  // Column counts feed CSS custom properties consumed by `.rx-grid` children.
+  // The wrapper itself must stay a block element, otherwise headings and grids
+  // become sibling grid items and collapse into one narrow column.
+  const gridVars =
     cols > 0
-      ? `--rx-cols:${cols};--rx-cols-tablet:${Math.min(cols, 2)};--rx-cols-mobile:1;gap:${s.gap ?? 16}px`
-      : "";
-  return `<section data-node="${node.id}" style="${sectionCss(s)}" class="rx-section${s.animation && s.animation !== "none" ? ` rx-anim rx-${s.animation}` : ""}"><div style="${innerCss(s)};${gridStyle}">${renderNodeHtml(node, theme)}</div></section>`;
+      ? `--rx-cols:${cols};--rx-cols-tablet:${Math.min(cols, 2)};--rx-cols-mobile:1;--rx-gap:${s.gap ?? 16}px`
+      : `--rx-gap:${s.gap ?? 16}px`;
+  return `<section data-node="${node.id}" style="${sectionCss(s)}" class="rx-section${s.animation && s.animation !== "none" ? ` rx-anim rx-${s.animation}` : ""}"><div style="${innerCss(s)};${gridVars}">${renderNodeHtml(node, theme)}</div></section>`;
 }
 
 export function renderPageBody(page: BuilderPage, theme: ProjectTheme, bp: "base" | "tablet" | "mobile" = "base") {
@@ -48,7 +49,7 @@ export function baseCss(theme: ProjectTheme) {
   return `*{box-sizing:border-box}
 body{margin:0;background:${theme.background};color:${theme.foreground};font-family:${theme.font};-webkit-font-smoothing:antialiased}
 img{max-width:100%}
-.rx-grid{display:grid;grid-template-columns:repeat(var(--rx-cols,3),minmax(0,1fr));gap:inherit}
+.rx-grid{display:grid;grid-template-columns:repeat(var(--rx-cols,3),minmax(0,1fr));gap:var(--rx-gap,16px)}
 .rx-btn{transition:transform .18s ease,filter .18s ease}
 .rx-btn:hover{transform:translateY(-2px);filter:brightness(1.08)}
 .rx-anim{opacity:0;transform:translateY(18px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
