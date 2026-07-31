@@ -12,6 +12,22 @@ import {
 import type { BuilderProject } from "@/lib/builder/types";
 
 export const Route = createFileRoute("/_app/projects")({
+  head: () => ({
+    meta: [
+      { title: "Projects — RetailX" },
+      {
+        name: "description",
+        content: "Create, duplicate and publish your RetailX static sites from one workspace.",
+      },
+      { property: "og:title", content: "Projects — RetailX" },
+      {
+        property: "og:description",
+        content: "Create, duplicate and publish your RetailX static sites from one workspace.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: ProjectsPage,
 });
 
