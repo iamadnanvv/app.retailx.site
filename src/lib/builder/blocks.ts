@@ -287,7 +287,7 @@ export function renderNodeHtml(node: BuilderNode, theme: ProjectTheme): string {
 ${p.eyebrow ? `<div style="display:inline-block;padding:6px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);font-size:13px;color:${t.muted};margin-bottom:20px">${escapeHtml(p.eyebrow)}</div>` : ""}
 <h1 style="font-size:clamp(38px,6vw,76px);line-height:1.02;letter-spacing:-.03em;margin:0 0 18px">${escapeHtml(p.title).replace(/\n/g, "<br/>")}</h1>
 <p style="font-size:clamp(16px,2vw,20px);color:${t.muted};margin:0 auto 30px;max-width:640px">${escapeHtml(p.subtitle)}</p>
-<div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:inherit">${btn(p.primary, p.primaryHref)}${p.secondary ? btn(p.secondary, "#", false) : ""}</div>`;
+<div style="display:inline-flex;gap:12px;flex-wrap:wrap">${btn(p.primary, p.primaryHref)}${p.secondary ? btn(p.secondary, "#", false) : ""}</div>`;
     case "heading": {
       const lvl = Math.min(4, Math.max(1, Number(p.level) || 2));
       const size = [58, 42, 30, 22][lvl - 1];
