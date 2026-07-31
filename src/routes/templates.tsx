@@ -3,7 +3,15 @@ import { Check, Database, Moon, Smartphone } from "lucide-react";
 import { useMemo, useState } from "react";
 import { MagneticButton } from "@/components/site/magnetic-button";
 import { Reveal } from "@/components/site/reveal";
-import { templateCategories, templates } from "@/lib/site-data";
+import { useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
+import {
+  landingTemplates,
+  templateCategoryList,
+  templateScores,
+  buildTemplateProject,
+} from "@/lib/templates/library";
+import { upsertProject } from "@/lib/builder/storage";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/templates")({
@@ -30,12 +38,6 @@ export const Route = createFileRoute("/templates")({
   component: Templates,
 });
 
-const accentClass = {
-  primary: "text-primary",
-  accent: "text-accent",
-  ember: "text-ember",
-} as const;
-
 function Score({ label, value }: { label: string; value: number }) {
   return (
     <div>
@@ -55,11 +57,27 @@ function Score({ label, value }: { label: string; value: number }) {
 
 function Templates() {
   const [active, setActive] = useState<string>("All");
+  const [query, setQuery] = useState("");
+  const navigate = useNavigate();
 
-  const visible = useMemo(
-    () => (active === "All" ? templates : templates.filter((t) => t.category === active)),
-    [active],
-  );
+  const visible = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return landingTemplates.filter(
+      (t) =>
+        (active === "All" || t.category === active) &&
+        (!q ||
+          `${t.name} ${t.category} ${t.blurb}`.toLowerCase().includes(q)),
+    );
+  }, [active, query]);
+
+  const useTemplate = (slug: string) => {
+    const template = landingTemplates.find((t) => t.slug === slug);
+    if (!template) return;
+    const project = buildTemplateProject(template);
+    upsertProject(project);
+    toast.success(`${template.name} duplicated into your workspace`);
+    void navigate({ to: "/editor/$projectId", params: { projectId: project.id } });
+  };
 
   return (
     <div className="px-6 pb-32">
@@ -76,7 +94,7 @@ function Templates() {
         </Reveal>
 
         <Reveal delay={100} className="mt-10 flex flex-wrap gap-2">
-          {templateCategories.map((category) => (
+          {templateCategoryList.map((category) => (
             <button
               key={category}
               type="button"
