@@ -52,15 +52,20 @@ function Dashboard() {
         </Link>
       </div>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-3">
+      <div className="mt-8 grid gap-4 md:grid-cols-4">
         <Stat label="Workspace" value={onboarding.workspaceName || "Not set"} hint="Personal" />
+        <Stat label="Sites" value={String(projects.length)} hint={`${liveCount} live`} />
+        <Stat label="Deployments" value={String(deployCount)} hint="All projects" />
         <Stat label="Organizations" value={String(orgCount)} hint="Team workspaces" />
+      </div>
+      <div className="mt-4">
         <Stat
           label="Setup"
           value={`${doneCount}/${steps.length}`}
           hint={onboarding.completed ? "Complete" : "In progress"}
         />
       </div>
+
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
         <section className="glass rounded-3xl p-6">
