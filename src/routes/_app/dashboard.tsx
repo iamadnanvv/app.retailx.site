@@ -59,7 +59,7 @@ function Dashboard() {
           </h1>
         </div>
         <Link
-          to="/onboarding"
+          to="/projects"
           className="bg-primary text-primary-foreground inline-flex h-11 items-center gap-2 rounded-full px-6 text-sm font-semibold shadow-[var(--shadow-glow)] transition hover:brightness-110"
         >
           <Plus className="size-4" />
