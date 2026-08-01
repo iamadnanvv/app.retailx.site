@@ -528,9 +528,15 @@ function EditorPage() {
                 textarea={f.type === "textarea" || f.type === "list"}
                 value={
                   f.type === "list"
-                    ? (Array.isArray(selected.props[f.key]) ? (selected.props[f.key] as string[]) : []).join("\n")
+                    ? (Array.isArray(selected.props[f.key])
+                        ? (selected.props[f.key] as unknown[]).map(String)
+                        : String(selected.props[f.key] ?? "")
+                            .split("\n")
+                            .filter(Boolean)
+                      ).join("\n")
                     : String(selected.props[f.key] ?? "")
                 }
+
                 onChange={(v) => e.setNodeProp(selected.id, f.key, f.type === "list" ? v.split("\n") : v)}
               />
             ))}
