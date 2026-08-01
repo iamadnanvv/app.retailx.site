@@ -1,7 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useCallback, useEffect, useState } from "react";
 import { useUser, useOrganizationList } from "@clerk/tanstack-react-start";
-import { ArrowUpRight, CheckCircle2, Circle, Plus, Rocket, Users } from "lucide-react";
+import { ArrowUpRight, CheckCircle2, Circle, PencilRuler, Plus, Rocket, Users } from "lucide-react";
 import { readOnboarding } from "@/lib/onboarding";
+import { loadProjects } from "@/lib/builder/storage";
+import type { BuilderProject } from "@/lib/builder/types";
+
 
 export const Route = createFileRoute("/_app/dashboard")({
   head: () => ({
