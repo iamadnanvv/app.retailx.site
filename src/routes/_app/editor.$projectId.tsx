@@ -212,18 +212,37 @@ function EditorPage() {
           {panel === "pages" && (
             <div className="space-y-2">
               {project.pages.map((p) => (
-                <button
+                <div
                   key={p.id}
-                  onClick={() => e.setPageId(p.id)}
                   className={cn(
-                    "w-full rounded-xl px-3 py-2 text-left text-xs",
+                    "flex items-center gap-2 rounded-xl px-3 py-2 text-xs",
                     p.id === e.pageId ? "bg-secondary" : "text-muted-foreground hover:bg-secondary/50",
                   )}
                 >
-                  <span className="block truncate">{p.name}</span>
-                  <span className="text-muted-foreground text-[11px]">{p.slug}</span>
-                </button>
+                  <button onClick={() => e.setPageId(p.id)} className="min-w-0 flex-1 text-left">
+                    <span className="block truncate">{p.name}</span>
+                    <span className="text-muted-foreground text-[11px]">{p.slug}</span>
+                  </button>
+                  {project.pages.length > 1 && (
+                    <button
+                      title="Delete page"
+                      onClick={() => {
+                        const remaining = project.pages.filter((x) => x.id !== p.id);
+                        e.setProject((d) => {
+                          d.pages = d.pages.filter((x) => x.id !== p.id);
+                          return d;
+                        });
+                        if (p.id === e.pageId) e.setPageId(remaining[0]?.id ?? null);
+                        toast.success(`Deleted “${p.name}”`);
+                      }}
+                      className="text-muted-foreground hover:text-destructive shrink-0"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </button>
+                  )}
+                </div>
               ))}
+
               <button
                 onClick={() => {
                   const id = uid();
