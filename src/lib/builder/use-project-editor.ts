@@ -188,7 +188,8 @@ export function useProjectEditor(projectId: string) {
     setNodeStyle,
     undo,
     redo,
-    canUndo: past.current.length > 0,
-    canRedo: future.current.length > 0,
+    canUndo: past.length > 0,
+    canRedo: future.length > 0,
+
   };
 }
