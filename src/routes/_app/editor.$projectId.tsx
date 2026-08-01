@@ -481,7 +481,12 @@ function EditorPage() {
             {page.nodes.map((n, i) => (
               <div
                 key={n.id}
-                onClick={() => e.setSelectedId(n.id)}
+                onClick={(ev) => {
+                  // Links inside rendered blocks must not navigate while editing.
+                  if ((ev.target as HTMLElement).closest("a,button,summary,input,textarea")) ev.preventDefault();
+                  e.setSelectedId(n.id);
+                }}
+
                 draggable
                 onDragStart={() => setDragIndex(i)}
                 onDragOver={(ev) => ev.preventDefault()}
