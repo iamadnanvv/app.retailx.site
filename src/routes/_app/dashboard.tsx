@@ -104,6 +104,45 @@ function Dashboard() {
           </div>
         </section>
       </div>
+
+      <section className="glass mt-6 rounded-3xl p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-display text-xl font-bold tracking-tight">Recent projects</h2>
+          <Link to="/projects" className="text-primary text-sm font-semibold">
+            All projects
+          </Link>
+        </div>
+        {recent.length ? (
+          <ul className="mt-4 grid gap-2">
+            {recent.map((p) => (
+              <li key={p.id} className="hover:bg-secondary/50 flex flex-wrap items-center gap-3 rounded-2xl px-3 py-3 text-sm transition-colors">
+                <PencilRuler className="text-primary size-4 shrink-0" />
+                <span className="min-w-0 flex-1 truncate font-medium">{p.name}</span>
+                <span className="text-muted-foreground text-xs">
+                  {p.pages.length} page{p.pages.length === 1 ? "" : "s"} ·{" "}
+                  {p.publishedAt ? "Live" : "Draft"} · {new Date(p.updatedAt).toLocaleDateString()}
+                </span>
+                <Link
+                  to="/editor/$projectId"
+                  params={{ projectId: p.id }}
+                  className="border-border text-muted-foreground hover:text-foreground rounded-full border px-3 py-1.5 text-xs"
+                >
+                  Open editor
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-muted-foreground mt-4 text-sm">
+            No sites yet —{" "}
+            <Link to="/projects" className="text-primary">
+              create your first project
+            </Link>
+            .
+          </p>
+        )}
+      </section>
+
     </div>
   );
 }
