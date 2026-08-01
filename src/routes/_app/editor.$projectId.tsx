@@ -83,24 +83,27 @@ function EditorPage() {
 
   const publish = () => {
     const { files, bytes } = buildStaticSite(project);
-    e.setProject((d) => {
-      d.publishedAt = new Date().toISOString();
-      d.deployments = [
+    const next = {
+      ...structuredClone(project),
+      publishedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      deployments: [
         {
           id: uid(),
           at: new Date().toISOString(),
-          pages: d.pages.length,
+          pages: project.pages.length,
           bytes,
-          status: "live",
+          status: "live" as const,
           note: `Published ${files.length} files`,
         },
-        ...d.deployments.map((x) => ({ ...x, status: "rolled-back" as const })),
-      ];
-      return d;
-    });
-    upsertProject(project);
+        ...project.deployments.map((x) => ({ ...x, status: "rolled-back" as const })),
+      ],
+    };
+    e.setProject(() => next);
+    upsertProject(next);
     toast.success("Published to the edge", { description: `${files.length} files · ${(bytes / 1024).toFixed(1)} KB` });
   };
+
 
   const exportSite = () => {
     const { files } = buildStaticSite(project);
