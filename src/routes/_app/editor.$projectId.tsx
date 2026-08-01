@@ -648,7 +648,7 @@ function IconBtn({ children, ...rest }: React.ButtonHTMLAttributes<HTMLButtonEle
   return (
     <button
       {...rest}
-      className="text-muted-foreground hover:text-foreground hover:bg-secondary/60 grid size-7 place-items-center rounded-lg"
+      className="text-muted-foreground hover:text-foreground hover:bg-secondary/60 grid size-7 place-items-center rounded-lg disabled:pointer-events-none disabled:opacity-35"
     >
       {children}
     </button>
