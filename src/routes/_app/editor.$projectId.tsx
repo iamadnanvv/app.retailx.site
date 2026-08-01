@@ -83,24 +83,27 @@ function EditorPage() {
 
   const publish = () => {
     const { files, bytes } = buildStaticSite(project);
-    e.setProject((d) => {
-      d.publishedAt = new Date().toISOString();
-      d.deployments = [
+    const next = {
+      ...structuredClone(project),
+      publishedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      deployments: [
         {
           id: uid(),
           at: new Date().toISOString(),
-          pages: d.pages.length,
+          pages: project.pages.length,
           bytes,
-          status: "live",
+          status: "live" as const,
           note: `Published ${files.length} files`,
         },
-        ...d.deployments.map((x) => ({ ...x, status: "rolled-back" as const })),
-      ];
-      return d;
-    });
-    upsertProject(project);
+        ...project.deployments.map((x) => ({ ...x, status: "rolled-back" as const })),
+      ],
+    };
+    e.setProject(() => next);
+    upsertProject(next);
     toast.success("Published to the edge", { description: `${files.length} files · ${(bytes / 1024).toFixed(1)} KB` });
   };
+
 
   const exportSite = () => {
     const { files } = buildStaticSite(project);
@@ -209,18 +212,37 @@ function EditorPage() {
           {panel === "pages" && (
             <div className="space-y-2">
               {project.pages.map((p) => (
-                <button
+                <div
                   key={p.id}
-                  onClick={() => e.setPageId(p.id)}
                   className={cn(
-                    "w-full rounded-xl px-3 py-2 text-left text-xs",
+                    "flex items-center gap-2 rounded-xl px-3 py-2 text-xs",
                     p.id === e.pageId ? "bg-secondary" : "text-muted-foreground hover:bg-secondary/50",
                   )}
                 >
-                  <span className="block truncate">{p.name}</span>
-                  <span className="text-muted-foreground text-[11px]">{p.slug}</span>
-                </button>
+                  <button onClick={() => e.setPageId(p.id)} className="min-w-0 flex-1 text-left">
+                    <span className="block truncate">{p.name}</span>
+                    <span className="text-muted-foreground text-[11px]">{p.slug}</span>
+                  </button>
+                  {project.pages.length > 1 && (
+                    <button
+                      title="Delete page"
+                      onClick={() => {
+                        const remaining = project.pages.filter((x) => x.id !== p.id);
+                        e.setProject((d) => {
+                          d.pages = d.pages.filter((x) => x.id !== p.id);
+                          return d;
+                        });
+                        if (p.id === e.pageId) e.setPageId(remaining[0]?.id ?? null);
+                        toast.success(`Deleted “${p.name}”`);
+                      }}
+                      className="text-muted-foreground hover:text-destructive shrink-0"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </button>
+                  )}
+                </div>
               ))}
+
               <button
                 onClick={() => {
                   const id = uid();
@@ -407,12 +429,13 @@ function EditorPage() {
           </Link>
           <span className="font-display truncate text-sm font-semibold">{project.name}</span>
           <div className="ml-2 flex items-center gap-1">
-            <IconBtn onClick={e.undo} title="Undo (⌘Z)">
+            <IconBtn onClick={e.undo} disabled={!e.canUndo} title="Undo (⌘Z)">
               <Undo2 className="size-4" />
             </IconBtn>
-            <IconBtn onClick={e.redo} title="Redo (⇧⌘Z)">
+            <IconBtn onClick={e.redo} disabled={!e.canRedo} title="Redo (⇧⌘Z)">
               <Redo2 className="size-4" />
             </IconBtn>
+
           </div>
           <div className="bg-secondary/50 ml-auto flex items-center gap-1 rounded-full p-1">
             {(
@@ -478,7 +501,12 @@ function EditorPage() {
             {page.nodes.map((n, i) => (
               <div
                 key={n.id}
-                onClick={() => e.setSelectedId(n.id)}
+                onClick={(ev) => {
+                  // Links inside rendered blocks must not navigate while editing.
+                  if ((ev.target as HTMLElement).closest("a,button,summary,input,textarea")) ev.preventDefault();
+                  e.setSelectedId(n.id);
+                }}
+
                 draggable
                 onDragStart={() => setDragIndex(i)}
                 onDragOver={(ev) => ev.preventDefault()}
@@ -525,9 +553,15 @@ function EditorPage() {
                 textarea={f.type === "textarea" || f.type === "list"}
                 value={
                   f.type === "list"
-                    ? (Array.isArray(selected.props[f.key]) ? (selected.props[f.key] as string[]) : []).join("\n")
+                    ? (Array.isArray(selected.props[f.key])
+                        ? (selected.props[f.key] as unknown[]).map(String)
+                        : String(selected.props[f.key] ?? "")
+                            .split("\n")
+                            .filter(Boolean)
+                      ).join("\n")
                     : String(selected.props[f.key] ?? "")
                 }
+
                 onChange={(v) => e.setNodeProp(selected.id, f.key, f.type === "list" ? v.split("\n") : v)}
               />
             ))}
@@ -614,7 +648,7 @@ function IconBtn({ children, ...rest }: React.ButtonHTMLAttributes<HTMLButtonEle
   return (
     <button
       {...rest}
-      className="text-muted-foreground hover:text-foreground hover:bg-secondary/60 grid size-7 place-items-center rounded-lg"
+      className="text-muted-foreground hover:text-foreground hover:bg-secondary/60 grid size-7 place-items-center rounded-lg disabled:pointer-events-none disabled:opacity-35"
     >
       {children}
     </button>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createNode } from "./blocks";
 import { loadProjects, upsertProject } from "./storage";
 import { uid, type BlockType, type Breakpoint, type BuilderNode, type BuilderProject, type NodeStyle } from "./types";
@@ -9,14 +9,17 @@ export function useProjectEditor(projectId: string) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [breakpoint, setBreakpoint] = useState<Breakpoint>("base");
   const [saved, setSaved] = useState(true);
-  const past = useRef<BuilderProject[]>([]);
-  const future = useRef<BuilderProject[]>([]);
-  const [, force] = useState(0);
+  const [past, setPast] = useState<BuilderProject[]>([]);
+  const [future, setFuture] = useState<BuilderProject[]>([]);
 
   useEffect(() => {
     const found = loadProjects().find((p) => p.id === projectId) ?? null;
     setProject(found);
     setPageId(found?.pages[0]?.id ?? null);
+    setPast([]);
+    setFuture([]);
+    setSelectedId(null);
+    setSaved(true);
   }, [projectId]);
 
   const page = useMemo(
@@ -30,19 +33,16 @@ export function useProjectEditor(projectId: string) {
 
   const commit = useCallback(
     (updater: (draft: BuilderProject) => BuilderProject, opts?: { history?: boolean }) => {
-      setProject((current) => {
-        if (!current) return current;
-        if (opts?.history !== false) {
-          past.current = [...past.current.slice(-49), structuredClone(current)];
-          future.current = [];
-        }
-        const next = { ...updater(structuredClone(current)), updatedAt: new Date().toISOString() };
-        setSaved(false);
-        return next;
-      });
-      force((n) => n + 1);
+      if (!project) return;
+      const next = { ...updater(structuredClone(project)), updatedAt: new Date().toISOString() };
+      if (opts?.history !== false) {
+        setPast((p) => [...p.slice(-49), project]);
+        setFuture([]);
+      }
+      setProject(next);
+      setSaved(false);
     },
-    [],
+    [project],
   );
 
   // Autosave
@@ -54,6 +54,7 @@ export function useProjectEditor(projectId: string) {
     }, 600);
     return () => clearTimeout(t);
   }, [project, saved]);
+
 
   const updatePage = useCallback(
     (fn: (p: NonNullable<typeof page>) => void, history = true) =>
@@ -127,24 +128,23 @@ export function useProjectEditor(projectId: string) {
   );
 
   const undo = useCallback(() => {
-    setProject((current) => {
-      const prev = past.current.pop();
-      if (!current || !prev) return current;
-      future.current = [...future.current, structuredClone(current)];
-      setSaved(false);
-      return prev;
-    });
-  }, []);
+    const prev = past[past.length - 1];
+    if (!prev || !project) return;
+    setPast((p) => p.slice(0, -1));
+    setFuture((f) => [...f, project]);
+    setProject(prev);
+    setSaved(false);
+  }, [past, project]);
 
   const redo = useCallback(() => {
-    setProject((current) => {
-      const next = future.current.pop();
-      if (!current || !next) return current;
-      past.current = [...past.current, structuredClone(current)];
-      setSaved(false);
-      return next;
-    });
-  }, []);
+    const next = future[future.length - 1];
+    if (!next || !project) return;
+    setFuture((f) => f.slice(0, -1));
+    setPast((p) => [...p, project]);
+    setProject(next);
+    setSaved(false);
+  }, [future, project]);
+
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -188,7 +188,8 @@ export function useProjectEditor(projectId: string) {
     setNodeStyle,
     undo,
     redo,
-    canUndo: past.current.length > 0,
-    canRedo: future.current.length > 0,
+    canUndo: past.length > 0,
+    canRedo: future.length > 0,
+
   };
 }

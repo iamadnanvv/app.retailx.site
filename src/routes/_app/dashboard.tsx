@@ -1,7 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useCallback, useEffect, useState } from "react";
 import { useUser, useOrganizationList } from "@clerk/tanstack-react-start";
-import { ArrowUpRight, CheckCircle2, Circle, Plus, Rocket, Users } from "lucide-react";
+import { ArrowUpRight, CheckCircle2, Circle, PencilRuler, Plus, Rocket, Users } from "lucide-react";
 import { readOnboarding } from "@/lib/onboarding";
+import { loadProjects } from "@/lib/builder/storage";
+import type { BuilderProject } from "@/lib/builder/types";
+
 
 export const Route = createFileRoute("/_app/dashboard")({
   head: () => ({
@@ -22,6 +26,21 @@ function Dashboard() {
   const onboarding = readOnboarding(user);
   const orgCount = isLoaded ? (userMemberships?.data?.length ?? 0) : 0;
 
+  const [projects, setProjects] = useState<BuilderProject[]>([]);
+  const refresh = useCallback(() => setProjects(loadProjects()), []);
+  useEffect(() => {
+    refresh();
+    window.addEventListener("retailx:projects", refresh);
+    return () => window.removeEventListener("retailx:projects", refresh);
+  }, [refresh]);
+
+  const recent = [...projects]
+    .sort((a, b) => +new Date(b.updatedAt) - +new Date(a.updatedAt))
+    .slice(0, 5);
+  const liveCount = projects.filter((p) => p.publishedAt).length;
+  const deployCount = projects.reduce((n, p) => n + p.deployments.length, 0);
+
+
   const steps = [
     { label: "Create your account", done: true },
     { label: "Name your workspace", done: Boolean(onboarding.workspaceName) },
@@ -40,7 +59,7 @@ function Dashboard() {
           </h1>
         </div>
         <Link
-          to="/onboarding"
+          to="/projects"
           className="bg-primary text-primary-foreground inline-flex h-11 items-center gap-2 rounded-full px-6 text-sm font-semibold shadow-[var(--shadow-glow)] transition hover:brightness-110"
         >
           <Plus className="size-4" />
@@ -48,15 +67,20 @@ function Dashboard() {
         </Link>
       </div>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-3">
+      <div className="mt-8 grid gap-4 md:grid-cols-4">
         <Stat label="Workspace" value={onboarding.workspaceName || "Not set"} hint="Personal" />
+        <Stat label="Sites" value={String(projects.length)} hint={`${liveCount} live`} />
+        <Stat label="Deployments" value={String(deployCount)} hint="All projects" />
         <Stat label="Organizations" value={String(orgCount)} hint="Team workspaces" />
+      </div>
+      <div className="mt-4">
         <Stat
           label="Setup"
           value={`${doneCount}/${steps.length}`}
           hint={onboarding.completed ? "Complete" : "In progress"}
         />
       </div>
+
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
         <section className="glass rounded-3xl p-6">
@@ -100,6 +124,45 @@ function Dashboard() {
           </div>
         </section>
       </div>
+
+      <section className="glass mt-6 rounded-3xl p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-display text-xl font-bold tracking-tight">Recent projects</h2>
+          <Link to="/projects" className="text-primary text-sm font-semibold">
+            All projects
+          </Link>
+        </div>
+        {recent.length ? (
+          <ul className="mt-4 grid gap-2">
+            {recent.map((p) => (
+              <li key={p.id} className="hover:bg-secondary/50 flex flex-wrap items-center gap-3 rounded-2xl px-3 py-3 text-sm transition-colors">
+                <PencilRuler className="text-primary size-4 shrink-0" />
+                <span className="min-w-0 flex-1 truncate font-medium">{p.name}</span>
+                <span className="text-muted-foreground text-xs">
+                  {p.pages.length} page{p.pages.length === 1 ? "" : "s"} ·{" "}
+                  {p.publishedAt ? "Live" : "Draft"} · {new Date(p.updatedAt).toLocaleDateString()}
+                </span>
+                <Link
+                  to="/editor/$projectId"
+                  params={{ projectId: p.id }}
+                  className="border-border text-muted-foreground hover:text-foreground rounded-full border px-3 py-1.5 text-xs"
+                >
+                  Open editor
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-muted-foreground mt-4 text-sm">
+            No sites yet —{" "}
+            <Link to="/projects" className="text-primary">
+              create your first project
+            </Link>
+            .
+          </p>
+        )}
+      </section>
+
     </div>
   );
 }
