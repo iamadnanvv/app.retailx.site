@@ -26,6 +26,21 @@ function Dashboard() {
   const onboarding = readOnboarding(user);
   const orgCount = isLoaded ? (userMemberships?.data?.length ?? 0) : 0;
 
+  const [projects, setProjects] = useState<BuilderProject[]>([]);
+  const refresh = useCallback(() => setProjects(loadProjects()), []);
+  useEffect(() => {
+    refresh();
+    window.addEventListener("retailx:projects", refresh);
+    return () => window.removeEventListener("retailx:projects", refresh);
+  }, [refresh]);
+
+  const recent = [...projects]
+    .sort((a, b) => +new Date(b.updatedAt) - +new Date(a.updatedAt))
+    .slice(0, 5);
+  const liveCount = projects.filter((p) => p.publishedAt).length;
+  const deployCount = projects.reduce((n, p) => n + p.deployments.length, 0);
+
+
   const steps = [
     { label: "Create your account", done: true },
     { label: "Name your workspace", done: Boolean(onboarding.workspaceName) },
