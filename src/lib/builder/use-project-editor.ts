@@ -128,24 +128,23 @@ export function useProjectEditor(projectId: string) {
   );
 
   const undo = useCallback(() => {
-    setProject((current) => {
-      const prev = past.current.pop();
-      if (!current || !prev) return current;
-      future.current = [...future.current, structuredClone(current)];
-      setSaved(false);
-      return prev;
-    });
-  }, []);
+    const prev = past[past.length - 1];
+    if (!prev || !project) return;
+    setPast((p) => p.slice(0, -1));
+    setFuture((f) => [...f, project]);
+    setProject(prev);
+    setSaved(false);
+  }, [past, project]);
 
   const redo = useCallback(() => {
-    setProject((current) => {
-      const next = future.current.pop();
-      if (!current || !next) return current;
-      past.current = [...past.current, structuredClone(current)];
-      setSaved(false);
-      return next;
-    });
-  }, []);
+    const next = future[future.length - 1];
+    if (!next || !project) return;
+    setFuture((f) => f.slice(0, -1));
+    setPast((p) => [...p, project]);
+    setProject(next);
+    setSaved(false);
+  }, [future, project]);
+
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
