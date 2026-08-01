@@ -410,12 +410,13 @@ function EditorPage() {
           </Link>
           <span className="font-display truncate text-sm font-semibold">{project.name}</span>
           <div className="ml-2 flex items-center gap-1">
-            <IconBtn onClick={e.undo} title="Undo (⌘Z)">
+            <IconBtn onClick={e.undo} disabled={!e.canUndo} title="Undo (⌘Z)">
               <Undo2 className="size-4" />
             </IconBtn>
-            <IconBtn onClick={e.redo} title="Redo (⇧⌘Z)">
+            <IconBtn onClick={e.redo} disabled={!e.canRedo} title="Redo (⇧⌘Z)">
               <Redo2 className="size-4" />
             </IconBtn>
+
           </div>
           <div className="bg-secondary/50 ml-auto flex items-center gap-1 rounded-full p-1">
             {(
