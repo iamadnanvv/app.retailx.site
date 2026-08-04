@@ -148,11 +148,20 @@ function Templates() {
                 </div>
 
                 <div className="mt-6 flex items-center justify-between">
-                  <h2 className="font-display text-lg font-semibold">{template.name}</h2>
+                  <h2 className="font-display text-lg font-semibold">
+                    <Link
+                      to="/templates/$slug"
+                      params={{ slug: template.slug }}
+                      className="hover:text-primary transition-colors"
+                    >
+                      {template.name}
+                    </Link>
+                  </h2>
                   <span className="text-xs font-medium" style={{ color: template.accent }}>
                     {template.category}
                   </span>
                 </div>
+
                 <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
                   {template.blurb}
                 </p>
