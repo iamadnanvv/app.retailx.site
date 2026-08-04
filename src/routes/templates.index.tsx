@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Database, Moon, Smartphone } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Reveal } from "@/components/site/reveal";
