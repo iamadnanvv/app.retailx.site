@@ -13,7 +13,7 @@ import {
 import { upsertProject } from "@/lib/builder/storage";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/templates")({
+export const Route = createFileRoute("/templates/")({
   head: () => ({
     meta: [
       { title: "RetailX Templates — Production-Ready Site Starters" },

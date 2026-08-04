@@ -17,6 +17,7 @@ import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TemplatesSlugRouteImport } from './routes/templates.$slug'
 import { Route as SignUpSplatRouteImport } from './routes/sign-up.$'
 import { Route as SignInSplatRouteImport } from './routes/sign-in.$'
 import { Route as PreviewProjectIdRouteImport } from './routes/preview.$projectId'
@@ -64,6 +65,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const TemplatesSlugRoute = TemplatesSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => TemplatesRoute,
 } as any)
 const SignUpSplatRoute = SignUpSplatRouteImport.update({
   id: '/sign-up/$',
@@ -113,7 +119,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/pricing': typeof PricingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/templates': typeof TemplatesRoute
+  '/templates': typeof TemplatesRouteWithChildren
   '/dashboard': typeof AppDashboardRoute
   '/projects': typeof AppProjectsRoute
   '/settings': typeof AppSettingsRoute
@@ -121,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/preview/$projectId': typeof PreviewProjectIdRoute
   '/sign-in/$': typeof SignInSplatRoute
   '/sign-up/$': typeof SignUpSplatRoute
+  '/templates/$slug': typeof TemplatesSlugRoute
   '/editor/$projectId': typeof AppEditorProjectIdRoute
 }
 export interface FileRoutesByTo {
@@ -130,7 +137,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/pricing': typeof PricingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/templates': typeof TemplatesRoute
+  '/templates': typeof TemplatesRouteWithChildren
   '/dashboard': typeof AppDashboardRoute
   '/projects': typeof AppProjectsRoute
   '/settings': typeof AppSettingsRoute
@@ -138,6 +145,7 @@ export interface FileRoutesByTo {
   '/preview/$projectId': typeof PreviewProjectIdRoute
   '/sign-in/$': typeof SignInSplatRoute
   '/sign-up/$': typeof SignUpSplatRoute
+  '/templates/$slug': typeof TemplatesSlugRoute
   '/editor/$projectId': typeof AppEditorProjectIdRoute
 }
 export interface FileRoutesById {
@@ -149,7 +157,7 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/pricing': typeof PricingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/templates': typeof TemplatesRoute
+  '/templates': typeof TemplatesRouteWithChildren
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/projects': typeof AppProjectsRoute
   '/_app/settings': typeof AppSettingsRoute
@@ -157,6 +165,7 @@ export interface FileRoutesById {
   '/preview/$projectId': typeof PreviewProjectIdRoute
   '/sign-in/$': typeof SignInSplatRoute
   '/sign-up/$': typeof SignUpSplatRoute
+  '/templates/$slug': typeof TemplatesSlugRoute
   '/_app/editor/$projectId': typeof AppEditorProjectIdRoute
 }
 export interface FileRouteTypes {
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
     | '/preview/$projectId'
     | '/sign-in/$'
     | '/sign-up/$'
+    | '/templates/$slug'
     | '/editor/$projectId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -193,6 +203,7 @@ export interface FileRouteTypes {
     | '/preview/$projectId'
     | '/sign-in/$'
     | '/sign-up/$'
+    | '/templates/$slug'
     | '/editor/$projectId'
   id:
     | '__root__'
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/preview/$projectId'
     | '/sign-in/$'
     | '/sign-up/$'
+    | '/templates/$slug'
     | '/_app/editor/$projectId'
   fileRoutesById: FileRoutesById
 }
@@ -222,7 +234,7 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   PricingRoute: typeof PricingRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  TemplatesRoute: typeof TemplatesRoute
+  TemplatesRoute: typeof TemplatesRouteWithChildren
   PreviewProjectIdRoute: typeof PreviewProjectIdRoute
   SignInSplatRoute: typeof SignInSplatRoute
   SignUpSplatRoute: typeof SignUpSplatRoute
@@ -285,6 +297,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/templates/$slug': {
+      id: '/templates/$slug'
+      path: '/$slug'
+      fullPath: '/templates/$slug'
+      preLoaderRoute: typeof TemplatesSlugRouteImport
+      parentRoute: typeof TemplatesRoute
     }
     '/sign-up/$': {
       id: '/sign-up/$'
@@ -365,6 +384,18 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
   AppRouteRouteChildren,
 )
 
+interface TemplatesRouteChildren {
+  TemplatesSlugRoute: typeof TemplatesSlugRoute
+}
+
+const TemplatesRouteChildren: TemplatesRouteChildren = {
+  TemplatesSlugRoute: TemplatesSlugRoute,
+}
+
+const TemplatesRouteWithChildren = TemplatesRoute._addFileChildren(
+  TemplatesRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRouteRoute: AppRouteRouteWithChildren,
@@ -373,7 +404,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   PricingRoute: PricingRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
-  TemplatesRoute: TemplatesRoute,
+  TemplatesRoute: TemplatesRouteWithChildren,
   PreviewProjectIdRoute: PreviewProjectIdRoute,
   SignInSplatRoute: SignInSplatRoute,
   SignUpSplatRoute: SignUpSplatRoute,
