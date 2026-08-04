@@ -67,9 +67,9 @@ const TemplatesIndexRoute = TemplatesIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const TemplatesSlugRoute = TemplatesSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => TemplatesRoute,
+  id: '/templates/$slug',
+  path: '/templates/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const SignUpSplatRoute = SignUpSplatRouteImport.update({
   id: '/sign-up/$',
@@ -237,6 +237,7 @@ export interface RootRouteChildren {
   PreviewProjectIdRoute: typeof PreviewProjectIdRoute
   SignInSplatRoute: typeof SignInSplatRoute
   SignUpSplatRoute: typeof SignUpSplatRoute
+  TemplatesSlugRoute: typeof TemplatesSlugRoute
   TemplatesIndexRoute: typeof TemplatesIndexRoute
 }
 
@@ -300,10 +301,10 @@ declare module '@tanstack/react-router' {
     }
     '/templates/$slug': {
       id: '/templates/$slug'
-      path: '/$slug'
+      path: '/templates/$slug'
       fullPath: '/templates/$slug'
       preLoaderRoute: typeof TemplatesSlugRouteImport
-      parentRoute: typeof TemplatesRoute
+      parentRoute: typeof rootRouteImport
     }
     '/sign-up/$': {
       id: '/sign-up/$'
@@ -395,18 +396,9 @@ const rootRouteChildren: RootRouteChildren = {
   PreviewProjectIdRoute: PreviewProjectIdRoute,
   SignInSplatRoute: SignInSplatRoute,
   SignUpSplatRoute: SignUpSplatRoute,
+  TemplatesSlugRoute: TemplatesSlugRoute,
   TemplatesIndexRoute: TemplatesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
