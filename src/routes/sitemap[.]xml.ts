@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
+import { landingTemplates } from "@/lib/templates/library";
 
 // Sitemap URLs must be absolute; derive the origin from the incoming request so
 // preview, published and custom-domain deployments all emit correct <loc> values.
@@ -29,7 +30,13 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/marketplace", changefreq: "weekly", priority: "0.8" },
           { path: "/pricing", changefreq: "monthly", priority: "0.8" },
           { path: "/docs", changefreq: "weekly", priority: "0.7" },
+          ...landingTemplates.map((t) => ({
+            path: `/templates/${t.slug}`,
+            changefreq: "monthly" as const,
+            priority: "0.6",
+          })),
         ];
+
 
         const urls = entries.map((e) =>
           [
