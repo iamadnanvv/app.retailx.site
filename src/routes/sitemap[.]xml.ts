@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
+import { landingTemplates } from "@/lib/templates/library";
 
 // Sitemap URLs must be absolute; derive the origin from the incoming request so
 // preview, published and custom-domain deployments all emit correct <loc> values.
