@@ -64,6 +64,8 @@ function EditorPage() {
   const [panel, setPanel] = useState<(typeof panels)[number]["id"]>("blocks");
   const [query, setQuery] = useState("");
   const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dropIndex, setDropIndex] = useState<number | null>(null);
+
 
   if (!e.project || !e.page) {
     return (
