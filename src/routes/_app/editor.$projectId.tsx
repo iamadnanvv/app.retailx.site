@@ -619,8 +619,56 @@ function EditorPage() {
                   ))}
                 </div>
               </div>
+              <Segment
+                label="Layout"
+                options={["stack", "grid", "flex"] as const}
+                value={style.layout ?? "stack"}
+                onChange={(v) => e.setNodeStyle(selected.id, { layout: v })}
+              />
+              {style.layout === "flex" && (
+                <>
+                  <Segment
+                    label="Justify"
+                    options={["start", "center", "end", "between"] as const}
+                    value={style.justify ?? "start"}
+                    onChange={(v) => e.setNodeStyle(selected.id, { justify: v })}
+                  />
+                  <Segment
+                    label="Align items"
+                    options={["start", "center", "end", "stretch"] as const}
+                    value={style.alignItems ?? "stretch"}
+                    onChange={(v) => e.setNodeStyle(selected.id, { alignItems: v })}
+                  />
+                </>
+              )}
+              <Range label="Gap" value={style.gap ?? 16} max={80} onChange={(v) => e.setNodeStyle(selected.id, { gap: v })} />
+            </div>
+
+            <Group title="Typography">
+              <Range label="Font size" value={style.fontSize ?? 16} min={10} max={80} onChange={(v) => e.setNodeStyle(selected.id, { fontSize: v })} />
+              <Range label="Line height" value={style.lineHeight ?? 1.6} min={0.9} max={2.4} step={0.05} onChange={(v) => e.setNodeStyle(selected.id, { lineHeight: v })} />
+              <Range label="Letter spacing" value={style.letterSpacing ?? 0} min={-8} max={20} onChange={(v) => e.setNodeStyle(selected.id, { letterSpacing: v })} />
+              <Range label="Font weight" value={style.fontWeight ?? 400} min={300} max={800} step={100} onChange={(v) => e.setNodeStyle(selected.id, { fontWeight: v })} />
+              <Segment
+                label="Transform"
+                options={["none", "uppercase", "lowercase", "capitalize"] as const}
+                value={style.textTransform ?? "none"}
+                onChange={(v) => e.setNodeStyle(selected.id, { textTransform: v })}
+              />
               <label className="flex items-center justify-between">
-                <span className="text-muted-foreground">Background</span>
+                <span className="text-muted-foreground">Text colour</span>
+                <input
+                  type="color"
+                  value={style.color ?? project.theme.foreground}
+                  onChange={(ev) => e.setNodeStyle(selected.id, { color: ev.target.value })}
+                  className="h-7 w-14 bg-transparent"
+                />
+              </label>
+            </Group>
+
+            <Group title="Background">
+              <label className="flex items-center justify-between">
+                <span className="text-muted-foreground">Solid</span>
                 <input
                   type="color"
                   value={style.background ?? project.theme.background}
@@ -629,19 +677,106 @@ function EditorPage() {
                 />
               </label>
               <label className="flex items-center justify-between">
-                <span className="text-muted-foreground">Animation</span>
+                <span className="text-muted-foreground">Gradient</span>
+                <input
+                  type="checkbox"
+                  checked={!!style.gradient?.enabled}
+                  onChange={(ev) =>
+                    e.setNodeStyle(selected.id, {
+                      gradient: {
+                        from: style.gradient?.from ?? project.theme.accent,
+                        to: style.gradient?.to ?? project.theme.background,
+                        angle: style.gradient?.angle ?? 135,
+                        enabled: ev.target.checked,
+                      },
+                    })
+                  }
+                />
+              </label>
+              {style.gradient?.enabled && (
+                <>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">From / To</span>
+                    <span className="flex gap-1">
+                      <input
+                        type="color"
+                        value={style.gradient.from}
+                        onChange={(ev) =>
+                          e.setNodeStyle(selected.id, { gradient: { ...style.gradient!, from: ev.target.value } })
+                        }
+                        className="h-7 w-12 bg-transparent"
+                      />
+                      <input
+                        type="color"
+                        value={style.gradient.to}
+                        onChange={(ev) =>
+                          e.setNodeStyle(selected.id, { gradient: { ...style.gradient!, to: ev.target.value } })
+                        }
+                        className="h-7 w-12 bg-transparent"
+                      />
+                    </span>
+                  </div>
+                  <Range
+                    label="Angle"
+                    value={style.gradient.angle}
+                    max={360}
+                    step={5}
+                    onChange={(v) => e.setNodeStyle(selected.id, { gradient: { ...style.gradient!, angle: v } })}
+                  />
+                </>
+              )}
+            </Group>
+
+            <Group title="Borders & effects">
+              <Range label="Radius" value={style.radius ?? 0} max={60} onChange={(v) => e.setNodeStyle(selected.id, { radius: v })} />
+              <Range label="Border width" value={style.border ?? 0} max={8} onChange={(v) => e.setNodeStyle(selected.id, { border: v })} />
+              {!!style.border && (
+                <label className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Border colour</span>
+                  <input
+                    type="color"
+                    value={style.borderColor ?? "#ffffff"}
+                    onChange={(ev) => e.setNodeStyle(selected.id, { borderColor: ev.target.value })}
+                    className="h-7 w-14 bg-transparent"
+                  />
+                </label>
+              )}
+              <Segment
+                label="Shadow"
+                options={["none", "sm", "md", "lg", "glow"] as const}
+                value={style.shadow ?? "none"}
+                onChange={(v) => e.setNodeStyle(selected.id, { shadow: v })}
+              />
+            </Group>
+
+            <Group title="Interactions">
+              <label className="flex items-center justify-between">
+                <span className="text-muted-foreground">Scroll reveal</span>
                 <select
                   value={style.animation ?? "none"}
                   onChange={(ev) => e.setNodeStyle(selected.id, { animation: ev.target.value as NodeStyle["animation"] })}
                   className="bg-secondary/60 rounded-lg px-2 py-1"
                 >
-                  {["none", "fade-up", "fade-in", "zoom-in"].map((a) => (
+                  {["none", "fade-up", "fade-in", "zoom-in", "slide-left", "slide-right", "blur-in"].map((a) => (
                     <option key={a} value={a}>
                       {a}
                     </option>
                   ))}
                 </select>
               </label>
+              {style.animation && style.animation !== "none" && (
+                <>
+                  <Range label="Delay (ms)" value={style.animationDelay ?? 0} max={1200} step={50} onChange={(v) => e.setNodeStyle(selected.id, { animationDelay: v })} />
+                  <Range label="Duration (ms)" value={style.animationDuration ?? 700} min={200} max={2000} step={50} onChange={(v) => e.setNodeStyle(selected.id, { animationDuration: v })} />
+                </>
+              )}
+              <Segment
+                label="Hover effect"
+                options={["none", "lift", "grow", "glow", "tilt"] as const}
+                value={style.hover ?? "none"}
+                onChange={(v) => e.setNodeStyle(selected.id, { hover: v })}
+              />
+              <Range label="Parallax strength" value={style.parallax ?? 0} max={10} step={0.5} onChange={(v) => e.setNodeStyle(selected.id, { parallax: v })} />
               <label className="flex items-center justify-between">
                 <span className="text-muted-foreground">Hide on {breakpoint}</span>
                 <input
@@ -650,7 +785,8 @@ function EditorPage() {
                   onChange={(ev) => e.setNodeStyle(selected.id, { hidden: ev.target.checked })}
                 />
               </label>
-            </div>
+            </Group>
+
 
             <div className="flex gap-2 pt-1">
               <button
