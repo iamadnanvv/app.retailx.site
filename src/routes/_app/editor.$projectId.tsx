@@ -896,3 +896,57 @@ function SeoScore({ title, description, nodes }: { title: string; description: s
     </div>
   );
 }
+
+function DropLine() {
+  return (
+    <div className="pointer-events-none absolute inset-x-0 z-20 -mt-[1px] h-0.5">
+      <div className="bg-primary relative h-0.5 rounded-full shadow-[0_0_10px_var(--color-primary)]">
+        <span className="bg-primary absolute -top-[3px] left-0 size-2 rounded-full" />
+        <span className="bg-primary absolute -top-[3px] right-0 size-2 rounded-full" />
+      </div>
+    </div>
+  );
+}
+
+function Group({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <details open className="border-border border-t pt-3">
+      <summary className="text-muted-foreground mb-2 cursor-pointer text-[11px] tracking-wide uppercase">
+        {title}
+      </summary>
+      <div className="space-y-3">{children}</div>
+    </details>
+  );
+}
+
+function Segment<T extends string>({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: readonly T[];
+  value: T;
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div>
+      <span className="text-muted-foreground">{label}</span>
+      <div className="bg-secondary/30 mt-1 flex gap-1 rounded-lg p-0.5">
+        {options.map((o) => (
+          <button
+            key={o}
+            onClick={() => onChange(o)}
+            className={cn(
+              "flex-1 truncate rounded-md py-1 text-[11px] capitalize transition",
+              value === o ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {o}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
