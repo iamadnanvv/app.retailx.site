@@ -12,8 +12,28 @@ export type NodeStyle = {
   columns?: number;
   gap?: number;
   fontSize?: number;
-  animation?: "none" | "fade-up" | "fade-in" | "zoom-in";
+  animation?: "none" | "fade-up" | "fade-in" | "zoom-in" | "slide-left" | "slide-right" | "blur-in";
+  /* Advanced background */
+  gradient?: { enabled?: boolean; from: string; to: string; angle: number };
+  /* Typography */
+  lineHeight?: number;
+  letterSpacing?: number;
+  textTransform?: "none" | "uppercase" | "lowercase" | "capitalize";
+  fontWeight?: number;
+  /* Layout engine */
+  layout?: "stack" | "grid" | "flex";
+  justify?: "start" | "center" | "end" | "between";
+  alignItems?: "start" | "center" | "end" | "stretch";
+  /* Effects & interactions */
+  shadow?: "none" | "sm" | "md" | "lg" | "glow";
+  border?: number;
+  borderColor?: string;
+  hover?: "none" | "lift" | "grow" | "glow" | "tilt";
+  parallax?: number;
+  animationDelay?: number;
+  animationDuration?: number;
 };
+
 
 export type BlockType =
   | "hero"

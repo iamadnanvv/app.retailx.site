@@ -64,6 +64,8 @@ function EditorPage() {
   const [panel, setPanel] = useState<(typeof panels)[number]["id"]>("blocks");
   const [query, setQuery] = useState("");
   const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dropIndex, setDropIndex] = useState<number | null>(null);
+
 
   if (!e.project || !e.page) {
     return (
@@ -482,7 +484,9 @@ function EditorPage() {
           onDragOver={(ev) => ev.preventDefault()}
           onDrop={(ev) => {
             const type = ev.dataTransfer.getData("text/block") as BlockType;
-            if (type) e.addBlock(type);
+            if (type) e.addBlock(type, dropIndex ?? undefined);
+            setDropIndex(null);
+            setDragIndex(null);
           }}
         >
           <style dangerouslySetInnerHTML={{ __html: baseCss(project.theme).replace(/^body\{[^}]*\}/m, "") }} />
@@ -496,36 +500,60 @@ function EditorPage() {
               fontFamily: project.theme.font,
               borderRadius: 18,
               overflow: "hidden",
+              contain: "paint",
             }}
           >
             {page.nodes.map((n, i) => (
-              <div
-                key={n.id}
-                onClick={(ev) => {
-                  // Links inside rendered blocks must not navigate while editing.
-                  if ((ev.target as HTMLElement).closest("a,button,summary,input,textarea")) ev.preventDefault();
-                  e.setSelectedId(n.id);
-                }}
-
-                draggable
-                onDragStart={() => setDragIndex(i)}
-                onDragOver={(ev) => ev.preventDefault()}
-                onDrop={(ev) => {
-                  const type = ev.dataTransfer.getData("text/block") as BlockType;
-                  if (type) {
+              <div key={n.id} className="relative">
+                {dropIndex === i && <DropLine />}
+                <div
+                  onClick={(ev) => {
+                    // Links inside rendered blocks must not navigate while editing.
+                    if ((ev.target as HTMLElement).closest("a,button,summary,input,textarea")) ev.preventDefault();
+                    e.setSelectedId(n.id);
+                  }}
+                  draggable
+                  onDragStart={() => setDragIndex(i)}
+                  onDragEnd={() => (setDragIndex(null), setDropIndex(null))}
+                  onDragOver={(ev) => {
+                    ev.preventDefault();
+                    const r = ev.currentTarget.getBoundingClientRect();
+                    // Snap the insertion guide to the nearest block edge.
+                    setDropIndex(ev.clientY - r.top < r.height / 2 ? i : i + 1);
+                  }}
+                  onDrop={(ev) => {
                     ev.stopPropagation();
-                    e.addBlock(type, i + 1);
-                  } else if (dragIndex !== null && dragIndex !== i) {
-                    e.moveNode(dragIndex, i);
-                  }
-                  setDragIndex(null);
-                }}
-                className={cn(
-                  "relative cursor-pointer outline-offset-[-2px]",
-                  e.selectedId === n.id ? "outline outline-2 outline-[color:var(--color-primary)]" : "hover:outline hover:outline-1 hover:outline-white/25",
-                )}
-                dangerouslySetInnerHTML={{ __html: renderNode(n, project.theme, breakpoint) }}
-              />
+                    const type = ev.dataTransfer.getData("text/block") as BlockType;
+                    const at = dropIndex ?? i + 1;
+                    if (type) {
+                      e.addBlock(type, at);
+                    } else if (dragIndex !== null) {
+                      const to = at > dragIndex ? at - 1 : at;
+                      if (to !== dragIndex) e.moveNode(dragIndex, to);
+                    }
+                    setDragIndex(null);
+                    setDropIndex(null);
+                  }}
+                  className={cn(
+                    "group relative cursor-pointer outline-offset-[-2px] transition-[outline-color]",
+                    dragIndex === i && "opacity-40",
+                    e.selectedId === n.id
+                      ? "outline outline-2 outline-[color:var(--color-primary)]"
+                      : "hover:outline hover:outline-1 hover:outline-white/25",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "bg-primary text-primary-foreground pointer-events-none absolute top-0 left-0 z-10 rounded-br-lg px-2 py-0.5 text-[10px] font-semibold opacity-0 transition-opacity",
+                      e.selectedId === n.id ? "opacity-100" : "group-hover:opacity-100",
+                    )}
+                  >
+                    {blockDefMap[n.type].label}
+                  </span>
+                  <div dangerouslySetInnerHTML={{ __html: renderNode(n, project.theme, breakpoint) }} />
+                </div>
+                {dropIndex === i + 1 && i === page.nodes.length - 1 && <DropLine />}
+              </div>
             ))}
             {!page.nodes.length && (
               <div className="text-muted-foreground grid h-80 place-items-center text-sm">
@@ -534,6 +562,7 @@ function EditorPage() {
             )}
           </div>
         </div>
+
       </div>
 
       {/* Inspector */}
@@ -590,8 +619,56 @@ function EditorPage() {
                   ))}
                 </div>
               </div>
+              <Segment
+                label="Layout"
+                options={["stack", "grid", "flex"] as const}
+                value={style.layout ?? "stack"}
+                onChange={(v) => e.setNodeStyle(selected.id, { layout: v })}
+              />
+              {style.layout === "flex" && (
+                <>
+                  <Segment
+                    label="Justify"
+                    options={["start", "center", "end", "between"] as const}
+                    value={style.justify ?? "start"}
+                    onChange={(v) => e.setNodeStyle(selected.id, { justify: v })}
+                  />
+                  <Segment
+                    label="Align items"
+                    options={["start", "center", "end", "stretch"] as const}
+                    value={style.alignItems ?? "stretch"}
+                    onChange={(v) => e.setNodeStyle(selected.id, { alignItems: v })}
+                  />
+                </>
+              )}
+              <Range label="Gap" value={style.gap ?? 16} max={80} onChange={(v) => e.setNodeStyle(selected.id, { gap: v })} />
+            </div>
+
+            <Group title="Typography">
+              <Range label="Font size" value={style.fontSize ?? 16} min={10} max={80} onChange={(v) => e.setNodeStyle(selected.id, { fontSize: v })} />
+              <Range label="Line height" value={style.lineHeight ?? 1.6} min={0.9} max={2.4} step={0.05} onChange={(v) => e.setNodeStyle(selected.id, { lineHeight: v })} />
+              <Range label="Letter spacing" value={style.letterSpacing ?? 0} min={-8} max={20} onChange={(v) => e.setNodeStyle(selected.id, { letterSpacing: v })} />
+              <Range label="Font weight" value={style.fontWeight ?? 400} min={300} max={800} step={100} onChange={(v) => e.setNodeStyle(selected.id, { fontWeight: v })} />
+              <Segment
+                label="Transform"
+                options={["none", "uppercase", "lowercase", "capitalize"] as const}
+                value={style.textTransform ?? "none"}
+                onChange={(v) => e.setNodeStyle(selected.id, { textTransform: v })}
+              />
               <label className="flex items-center justify-between">
-                <span className="text-muted-foreground">Background</span>
+                <span className="text-muted-foreground">Text colour</span>
+                <input
+                  type="color"
+                  value={style.color ?? project.theme.foreground}
+                  onChange={(ev) => e.setNodeStyle(selected.id, { color: ev.target.value })}
+                  className="h-7 w-14 bg-transparent"
+                />
+              </label>
+            </Group>
+
+            <Group title="Background">
+              <label className="flex items-center justify-between">
+                <span className="text-muted-foreground">Solid</span>
                 <input
                   type="color"
                   value={style.background ?? project.theme.background}
@@ -600,19 +677,106 @@ function EditorPage() {
                 />
               </label>
               <label className="flex items-center justify-between">
-                <span className="text-muted-foreground">Animation</span>
+                <span className="text-muted-foreground">Gradient</span>
+                <input
+                  type="checkbox"
+                  checked={!!style.gradient?.enabled}
+                  onChange={(ev) =>
+                    e.setNodeStyle(selected.id, {
+                      gradient: {
+                        from: style.gradient?.from ?? project.theme.accent,
+                        to: style.gradient?.to ?? project.theme.background,
+                        angle: style.gradient?.angle ?? 135,
+                        enabled: ev.target.checked,
+                      },
+                    })
+                  }
+                />
+              </label>
+              {style.gradient?.enabled && (
+                <>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">From / To</span>
+                    <span className="flex gap-1">
+                      <input
+                        type="color"
+                        value={style.gradient.from}
+                        onChange={(ev) =>
+                          e.setNodeStyle(selected.id, { gradient: { ...style.gradient!, from: ev.target.value } })
+                        }
+                        className="h-7 w-12 bg-transparent"
+                      />
+                      <input
+                        type="color"
+                        value={style.gradient.to}
+                        onChange={(ev) =>
+                          e.setNodeStyle(selected.id, { gradient: { ...style.gradient!, to: ev.target.value } })
+                        }
+                        className="h-7 w-12 bg-transparent"
+                      />
+                    </span>
+                  </div>
+                  <Range
+                    label="Angle"
+                    value={style.gradient.angle}
+                    max={360}
+                    step={5}
+                    onChange={(v) => e.setNodeStyle(selected.id, { gradient: { ...style.gradient!, angle: v } })}
+                  />
+                </>
+              )}
+            </Group>
+
+            <Group title="Borders & effects">
+              <Range label="Radius" value={style.radius ?? 0} max={60} onChange={(v) => e.setNodeStyle(selected.id, { radius: v })} />
+              <Range label="Border width" value={style.border ?? 0} max={8} onChange={(v) => e.setNodeStyle(selected.id, { border: v })} />
+              {!!style.border && (
+                <label className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Border colour</span>
+                  <input
+                    type="color"
+                    value={style.borderColor ?? "#ffffff"}
+                    onChange={(ev) => e.setNodeStyle(selected.id, { borderColor: ev.target.value })}
+                    className="h-7 w-14 bg-transparent"
+                  />
+                </label>
+              )}
+              <Segment
+                label="Shadow"
+                options={["none", "sm", "md", "lg", "glow"] as const}
+                value={style.shadow ?? "none"}
+                onChange={(v) => e.setNodeStyle(selected.id, { shadow: v })}
+              />
+            </Group>
+
+            <Group title="Interactions">
+              <label className="flex items-center justify-between">
+                <span className="text-muted-foreground">Scroll reveal</span>
                 <select
                   value={style.animation ?? "none"}
                   onChange={(ev) => e.setNodeStyle(selected.id, { animation: ev.target.value as NodeStyle["animation"] })}
                   className="bg-secondary/60 rounded-lg px-2 py-1"
                 >
-                  {["none", "fade-up", "fade-in", "zoom-in"].map((a) => (
+                  {["none", "fade-up", "fade-in", "zoom-in", "slide-left", "slide-right", "blur-in"].map((a) => (
                     <option key={a} value={a}>
                       {a}
                     </option>
                   ))}
                 </select>
               </label>
+              {style.animation && style.animation !== "none" && (
+                <>
+                  <Range label="Delay (ms)" value={style.animationDelay ?? 0} max={1200} step={50} onChange={(v) => e.setNodeStyle(selected.id, { animationDelay: v })} />
+                  <Range label="Duration (ms)" value={style.animationDuration ?? 700} min={200} max={2000} step={50} onChange={(v) => e.setNodeStyle(selected.id, { animationDuration: v })} />
+                </>
+              )}
+              <Segment
+                label="Hover effect"
+                options={["none", "lift", "grow", "glow", "tilt"] as const}
+                value={style.hover ?? "none"}
+                onChange={(v) => e.setNodeStyle(selected.id, { hover: v })}
+              />
+              <Range label="Parallax strength" value={style.parallax ?? 0} max={10} step={0.5} onChange={(v) => e.setNodeStyle(selected.id, { parallax: v })} />
               <label className="flex items-center justify-between">
                 <span className="text-muted-foreground">Hide on {breakpoint}</span>
                 <input
@@ -621,7 +785,8 @@ function EditorPage() {
                   onChange={(ev) => e.setNodeStyle(selected.id, { hidden: ev.target.checked })}
                 />
               </label>
-            </div>
+            </Group>
+
 
             <div className="flex gap-2 pt-1">
               <button
@@ -727,6 +892,60 @@ function SeoScore({ title, description, nodes }: { title: string; description: s
       </div>
       <div className="bg-secondary mt-2 h-1.5 overflow-hidden rounded-full">
         <div className="bg-primary h-full transition-all" style={{ width: `${score}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function DropLine() {
+  return (
+    <div className="pointer-events-none absolute inset-x-0 z-20 -mt-[1px] h-0.5">
+      <div className="bg-primary relative h-0.5 rounded-full shadow-[0_0_10px_var(--color-primary)]">
+        <span className="bg-primary absolute -top-[3px] left-0 size-2 rounded-full" />
+        <span className="bg-primary absolute -top-[3px] right-0 size-2 rounded-full" />
+      </div>
+    </div>
+  );
+}
+
+function Group({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <details open className="border-border border-t pt-3">
+      <summary className="text-muted-foreground mb-2 cursor-pointer text-[11px] tracking-wide uppercase">
+        {title}
+      </summary>
+      <div className="space-y-3">{children}</div>
+    </details>
+  );
+}
+
+function Segment<T extends string>({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: readonly T[];
+  value: T;
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div>
+      <span className="text-muted-foreground">{label}</span>
+      <div className="bg-secondary/30 mt-1 flex gap-1 rounded-lg p-0.5">
+        {options.map((o) => (
+          <button
+            key={o}
+            onClick={() => onChange(o)}
+            className={cn(
+              "flex-1 truncate rounded-md py-1 text-[11px] capitalize transition",
+              value === o ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {o}
+          </button>
+        ))}
       </div>
     </div>
   );
