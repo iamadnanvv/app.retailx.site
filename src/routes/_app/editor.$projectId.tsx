@@ -482,7 +482,9 @@ function EditorPage() {
           onDragOver={(ev) => ev.preventDefault()}
           onDrop={(ev) => {
             const type = ev.dataTransfer.getData("text/block") as BlockType;
-            if (type) e.addBlock(type);
+            if (type) e.addBlock(type, dropIndex ?? undefined);
+            setDropIndex(null);
+            setDragIndex(null);
           }}
         >
           <style dangerouslySetInnerHTML={{ __html: baseCss(project.theme).replace(/^body\{[^}]*\}/m, "") }} />
@@ -496,36 +498,60 @@ function EditorPage() {
               fontFamily: project.theme.font,
               borderRadius: 18,
               overflow: "hidden",
+              contain: "paint",
             }}
           >
             {page.nodes.map((n, i) => (
-              <div
-                key={n.id}
-                onClick={(ev) => {
-                  // Links inside rendered blocks must not navigate while editing.
-                  if ((ev.target as HTMLElement).closest("a,button,summary,input,textarea")) ev.preventDefault();
-                  e.setSelectedId(n.id);
-                }}
-
-                draggable
-                onDragStart={() => setDragIndex(i)}
-                onDragOver={(ev) => ev.preventDefault()}
-                onDrop={(ev) => {
-                  const type = ev.dataTransfer.getData("text/block") as BlockType;
-                  if (type) {
+              <div key={n.id} className="relative">
+                {dropIndex === i && <DropLine />}
+                <div
+                  onClick={(ev) => {
+                    // Links inside rendered blocks must not navigate while editing.
+                    if ((ev.target as HTMLElement).closest("a,button,summary,input,textarea")) ev.preventDefault();
+                    e.setSelectedId(n.id);
+                  }}
+                  draggable
+                  onDragStart={() => setDragIndex(i)}
+                  onDragEnd={() => (setDragIndex(null), setDropIndex(null))}
+                  onDragOver={(ev) => {
+                    ev.preventDefault();
+                    const r = ev.currentTarget.getBoundingClientRect();
+                    // Snap the insertion guide to the nearest block edge.
+                    setDropIndex(ev.clientY - r.top < r.height / 2 ? i : i + 1);
+                  }}
+                  onDrop={(ev) => {
                     ev.stopPropagation();
-                    e.addBlock(type, i + 1);
-                  } else if (dragIndex !== null && dragIndex !== i) {
-                    e.moveNode(dragIndex, i);
-                  }
-                  setDragIndex(null);
-                }}
-                className={cn(
-                  "relative cursor-pointer outline-offset-[-2px]",
-                  e.selectedId === n.id ? "outline outline-2 outline-[color:var(--color-primary)]" : "hover:outline hover:outline-1 hover:outline-white/25",
-                )}
-                dangerouslySetInnerHTML={{ __html: renderNode(n, project.theme, breakpoint) }}
-              />
+                    const type = ev.dataTransfer.getData("text/block") as BlockType;
+                    const at = dropIndex ?? i + 1;
+                    if (type) {
+                      e.addBlock(type, at);
+                    } else if (dragIndex !== null) {
+                      const to = at > dragIndex ? at - 1 : at;
+                      if (to !== dragIndex) e.moveNode(dragIndex, to);
+                    }
+                    setDragIndex(null);
+                    setDropIndex(null);
+                  }}
+                  className={cn(
+                    "group relative cursor-pointer outline-offset-[-2px] transition-[outline-color]",
+                    dragIndex === i && "opacity-40",
+                    e.selectedId === n.id
+                      ? "outline outline-2 outline-[color:var(--color-primary)]"
+                      : "hover:outline hover:outline-1 hover:outline-white/25",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "bg-primary text-primary-foreground pointer-events-none absolute top-0 left-0 z-10 rounded-br-lg px-2 py-0.5 text-[10px] font-semibold opacity-0 transition-opacity",
+                      e.selectedId === n.id ? "opacity-100" : "group-hover:opacity-100",
+                    )}
+                  >
+                    {blockDefMap[n.type].label}
+                  </span>
+                  <div dangerouslySetInnerHTML={{ __html: renderNode(n, project.theme, breakpoint) }} />
+                </div>
+                {dropIndex === i + 1 && i === page.nodes.length - 1 && <DropLine />}
+              </div>
             ))}
             {!page.nodes.length && (
               <div className="text-muted-foreground grid h-80 place-items-center text-sm">
@@ -534,6 +560,7 @@ function EditorPage() {
             )}
           </div>
         </div>
+
       </div>
 
       {/* Inspector */}
