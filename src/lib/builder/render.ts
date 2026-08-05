@@ -6,23 +6,63 @@ export const mergeStyle = (node: BuilderNode, bp: "base" | "tablet" | "mobile"):
   ...(bp !== "base" ? (node.styles[bp] ?? {}) : {}),
 });
 
+const shadowCss: Record<string, string> = {
+  none: "",
+  sm: "0 1px 2px rgba(0,0,0,.18)",
+  md: "0 10px 30px -12px rgba(0,0,0,.45)",
+  lg: "0 30px 80px -24px rgba(0,0,0,.6)",
+  glow: "0 0 0 1px rgba(255,255,255,.08), 0 20px 60px -20px currentColor",
+};
+
+function backgroundValue(s: NodeStyle): string {
+  if (s.gradient?.enabled) {
+    return `linear-gradient(${s.gradient.angle ?? 135}deg, ${s.gradient.from}, ${s.gradient.to})`;
+  }
+  return s.background ?? "";
+}
+
 function sectionCss(s: NodeStyle): string {
+  const bg = backgroundValue(s);
   const parts = [
     `padding:${s.paddingY ?? 40}px ${s.paddingX ?? 24}px`,
-    s.background ? `background:${s.background}` : "",
+    bg ? `background:${bg}` : "",
     s.color ? `color:${s.color}` : "",
     s.align ? `text-align:${s.align}` : "",
     s.hidden ? "display:none" : "",
     s.fontSize ? `font-size:${s.fontSize}px` : "",
+    s.lineHeight ? `line-height:${s.lineHeight}` : "",
+    s.letterSpacing !== undefined ? `letter-spacing:${s.letterSpacing / 100}em` : "",
+    s.textTransform && s.textTransform !== "none" ? `text-transform:${s.textTransform}` : "",
+    s.fontWeight ? `font-weight:${s.fontWeight}` : "",
+    s.animationDelay ? `--rx-delay:${s.animationDelay}ms` : "",
+    s.animationDuration ? `--rx-dur:${s.animationDuration}ms` : "",
   ].filter(Boolean);
   return parts.join(";");
 }
 
 function innerCss(s: NodeStyle): string {
+  const justifyMap: Record<string, string> = {
+    start: "flex-start",
+    center: "center",
+    end: "flex-end",
+    between: "space-between",
+  };
+  const alignMap: Record<string, string> = {
+    start: "flex-start",
+    center: "center",
+    end: "flex-end",
+    stretch: "stretch",
+  };
+  const shadow = s.shadow && s.shadow !== "none" ? shadowCss[s.shadow] : "";
   const parts = [
     `max-width:${s.maxWidth ?? 1100}px`,
     "margin:0 auto",
     s.radius ? `border-radius:${s.radius}px;overflow:hidden` : "",
+    s.border ? `border:${s.border}px solid ${s.borderColor ?? "rgba(255,255,255,.14)"}` : "",
+    shadow ? `box-shadow:${shadow}` : "",
+    s.layout === "flex"
+      ? `display:flex;flex-wrap:wrap;gap:${s.gap ?? 16}px;justify-content:${justifyMap[s.justify ?? "start"]};align-items:${alignMap[s.alignItems ?? "stretch"]}`
+      : "",
   ].filter(Boolean);
   return parts.join(";");
 }
@@ -38,8 +78,18 @@ export function renderNode(node: BuilderNode, theme: ProjectTheme, bp: "base" | 
     cols > 0
       ? `--rx-cols:${cols};--rx-cols-tablet:${Math.min(cols, 2)};--rx-cols-mobile:1;--rx-gap:${s.gap ?? 16}px`
       : `--rx-gap:${s.gap ?? 16}px`;
-  return `<section data-node="${node.id}" style="${sectionCss(s)}" class="rx-section${s.animation && s.animation !== "none" ? ` rx-anim rx-${s.animation}` : ""}"><div style="${innerCss(s)};${gridVars}">${renderNodeHtml(node, theme)}</div></section>`;
+  const classes = [
+    "rx-section",
+    s.animation && s.animation !== "none" ? `rx-anim rx-${s.animation}` : "",
+    s.hover && s.hover !== "none" ? `rx-hover-${s.hover}` : "",
+    s.parallax ? "rx-parallax" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const parallaxAttr = s.parallax ? ` data-rx-speed="${s.parallax}"` : "";
+  return `<section data-node="${node.id}"${parallaxAttr} style="${sectionCss(s)}" class="${classes}"><div style="${innerCss(s)};${gridVars}">${renderNodeHtml(node, theme)}</div></section>`;
 }
+
 
 export function renderPageBody(page: BuilderPage, theme: ProjectTheme, bp: "base" | "tablet" | "mobile" = "base") {
   return page.nodes.map((n) => renderNode(n, theme, bp)).join("\n");
