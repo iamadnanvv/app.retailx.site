@@ -289,10 +289,10 @@ export const createProject = createServerFn({ method: "POST" })
     const page = starterPage();
     if (template) {
       page.nodes = templateNodes(template);
-      page.seo = { title: `${data.name} — ${template.tagline}`, description: template.description };
+      page.seo = { title: `${data.name} — ${template.headline}`.slice(0, 60), description: template.blurb };
     }
     const theme = template
-      ? { ...defaultTheme, accent: template.accent, font: template.font ?? defaultTheme.font }
+      ? { ...defaultTheme, accent: template.accent }
       : { ...defaultTheme };
 
     const db = await h.admin();
