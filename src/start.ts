@@ -5,6 +5,7 @@ import { CLERK_PUBLISHABLE_KEY } from "./lib/clerk";
 
 import { renderErrorPage } from "./lib/error-page";
 import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
+import { attachClerkAuth } from "./lib/clerk-auth-attacher";
 
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
   try {
