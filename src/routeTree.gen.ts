@@ -25,6 +25,7 @@ import { Route as AppTeamRouteImport } from './routes/_app/team'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppProjectsRouteImport } from './routes/_app/projects'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
 import { Route as AppEditorProjectIdRouteImport } from './routes/_app/editor.$projectId'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -106,6 +107,11 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
+  id: '/api/public/track',
+  path: '/api/public/track',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppEditorProjectIdRoute = AppEditorProjectIdRouteImport.update({
   id: '/editor/$projectId',
   path: '/editor/$projectId',
@@ -129,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/templates/$slug': typeof TemplatesSlugRoute
   '/templates/': typeof TemplatesIndexRoute
   '/editor/$projectId': typeof AppEditorProjectIdRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -147,6 +154,7 @@ export interface FileRoutesByTo {
   '/templates/$slug': typeof TemplatesSlugRoute
   '/templates': typeof TemplatesIndexRoute
   '/editor/$projectId': typeof AppEditorProjectIdRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -167,6 +175,7 @@ export interface FileRoutesById {
   '/templates/$slug': typeof TemplatesSlugRoute
   '/templates/': typeof TemplatesIndexRoute
   '/_app/editor/$projectId': typeof AppEditorProjectIdRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -187,6 +196,7 @@ export interface FileRouteTypes {
     | '/templates/$slug'
     | '/templates/'
     | '/editor/$projectId'
+    | '/api/public/track'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -205,6 +215,7 @@ export interface FileRouteTypes {
     | '/templates/$slug'
     | '/templates'
     | '/editor/$projectId'
+    | '/api/public/track'
   id:
     | '__root__'
     | '/'
@@ -224,6 +235,7 @@ export interface FileRouteTypes {
     | '/templates/$slug'
     | '/templates/'
     | '/_app/editor/$projectId'
+    | '/api/public/track'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -239,6 +251,7 @@ export interface RootRouteChildren {
   SignUpSplatRoute: typeof SignUpSplatRoute
   TemplatesSlugRoute: typeof TemplatesSlugRoute
   TemplatesIndexRoute: typeof TemplatesIndexRoute
+  ApiPublicTrackRoute: typeof ApiPublicTrackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -355,6 +368,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/api/public/track': {
+      id: '/api/public/track'
+      path: '/api/public/track'
+      fullPath: '/api/public/track'
+      preLoaderRoute: typeof ApiPublicTrackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_app/editor/$projectId': {
       id: '/_app/editor/$projectId'
       path: '/editor/$projectId'
@@ -398,17 +418,8 @@ const rootRouteChildren: RootRouteChildren = {
   SignUpSplatRoute: SignUpSplatRoute,
   TemplatesSlugRoute: TemplatesSlugRoute,
   TemplatesIndexRoute: TemplatesIndexRoute,
+  ApiPublicTrackRoute: ApiPublicTrackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
