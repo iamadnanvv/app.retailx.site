@@ -150,7 +150,7 @@ export async function logActivity(input: {
     actor: input.user.name ?? input.user.email ?? "Someone",
     action: input.action,
     target: input.target ?? null,
-    meta: input.meta ?? {},
+    meta: (input.meta ?? {}) as never,
   });
 }
 
