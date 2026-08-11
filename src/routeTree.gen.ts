@@ -26,6 +26,7 @@ import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppProjectsRouteImport } from './routes/_app/projects'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
+import { Route as ApiPublicFormRouteImport } from './routes/api/public/form'
 import { Route as AppEditorProjectIdRouteImport } from './routes/_app/editor.$projectId'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -112,6 +113,11 @@ const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
   path: '/api/public/track',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicFormRoute = ApiPublicFormRouteImport.update({
+  id: '/api/public/form',
+  path: '/api/public/form',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppEditorProjectIdRoute = AppEditorProjectIdRouteImport.update({
   id: '/editor/$projectId',
   path: '/editor/$projectId',
@@ -135,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/templates/$slug': typeof TemplatesSlugRoute
   '/templates/': typeof TemplatesIndexRoute
   '/editor/$projectId': typeof AppEditorProjectIdRoute
+  '/api/public/form': typeof ApiPublicFormRoute
   '/api/public/track': typeof ApiPublicTrackRoute
 }
 export interface FileRoutesByTo {
@@ -154,6 +161,7 @@ export interface FileRoutesByTo {
   '/templates/$slug': typeof TemplatesSlugRoute
   '/templates': typeof TemplatesIndexRoute
   '/editor/$projectId': typeof AppEditorProjectIdRoute
+  '/api/public/form': typeof ApiPublicFormRoute
   '/api/public/track': typeof ApiPublicTrackRoute
 }
 export interface FileRoutesById {
@@ -175,6 +183,7 @@ export interface FileRoutesById {
   '/templates/$slug': typeof TemplatesSlugRoute
   '/templates/': typeof TemplatesIndexRoute
   '/_app/editor/$projectId': typeof AppEditorProjectIdRoute
+  '/api/public/form': typeof ApiPublicFormRoute
   '/api/public/track': typeof ApiPublicTrackRoute
 }
 export interface FileRouteTypes {
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
     | '/templates/$slug'
     | '/templates/'
     | '/editor/$projectId'
+    | '/api/public/form'
     | '/api/public/track'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -215,6 +225,7 @@ export interface FileRouteTypes {
     | '/templates/$slug'
     | '/templates'
     | '/editor/$projectId'
+    | '/api/public/form'
     | '/api/public/track'
   id:
     | '__root__'
@@ -235,6 +246,7 @@ export interface FileRouteTypes {
     | '/templates/$slug'
     | '/templates/'
     | '/_app/editor/$projectId'
+    | '/api/public/form'
     | '/api/public/track'
   fileRoutesById: FileRoutesById
 }
@@ -251,6 +263,7 @@ export interface RootRouteChildren {
   SignUpSplatRoute: typeof SignUpSplatRoute
   TemplatesSlugRoute: typeof TemplatesSlugRoute
   TemplatesIndexRoute: typeof TemplatesIndexRoute
+  ApiPublicFormRoute: typeof ApiPublicFormRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
 }
 
@@ -375,6 +388,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTrackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/form': {
+      id: '/api/public/form'
+      path: '/api/public/form'
+      fullPath: '/api/public/form'
+      preLoaderRoute: typeof ApiPublicFormRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_app/editor/$projectId': {
       id: '/_app/editor/$projectId'
       path: '/editor/$projectId'
@@ -418,6 +438,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignUpSplatRoute: SignUpSplatRoute,
   TemplatesSlugRoute: TemplatesSlugRoute,
   TemplatesIndexRoute: TemplatesIndexRoute,
+  ApiPublicFormRoute: ApiPublicFormRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,
 }
 export const routeTree = rootRouteImport
