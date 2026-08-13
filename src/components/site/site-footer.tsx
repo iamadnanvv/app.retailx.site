@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { BrandMark } from "@/components/site/brand-mark";
 
 const groups = [
   {
@@ -26,10 +27,7 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-6xl gap-12 md:grid-cols-[1.4fr_1fr_1fr]">
         <div>
           <div className="flex items-center gap-2">
-            <span className="bg-primary text-primary-foreground font-display grid size-8 place-items-center rounded-xl text-sm font-bold">
-              R
-            </span>
-            <span className="font-display text-lg font-bold tracking-tight">RetailX</span>
+            <BrandMark size={30} />
           </div>
           <p className="text-muted-foreground mt-4 max-w-sm text-sm leading-relaxed">
             The creator-first static site studio. Design on an infinite canvas, publish to a global

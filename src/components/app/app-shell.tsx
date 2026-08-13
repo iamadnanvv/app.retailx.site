@@ -2,6 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { UserButton } from "@clerk/tanstack-react-start";
 import { LayoutDashboard, Users, Settings, Sparkles, PencilRuler } from "lucide-react";
 import type { ReactNode } from "react";
+import { BrandMark } from "@/components/site/brand-mark";
 import { cn } from "@/lib/utils";
 
 const nav = [
@@ -18,10 +19,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen">
       <aside className="glass sticky top-0 hidden h-screen w-64 shrink-0 flex-col gap-2 rounded-none border-y-0 border-l-0 p-4 md:flex">
         <Link to="/" className="mb-4 flex items-center gap-2 px-2 py-1">
-          <span className="bg-primary text-primary-foreground font-display grid size-8 place-items-center rounded-xl text-sm font-bold">
-            R
-          </span>
-          <span className="font-display text-lg font-bold tracking-tight">RetailX</span>
+          <BrandMark size={30} />
         </Link>
 
         <nav className="flex flex-col gap-1">

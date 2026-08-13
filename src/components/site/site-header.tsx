@@ -3,6 +3,7 @@ import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ClerkLoaded, UserButton, useAuth } from "@clerk/tanstack-react-start";
 import { MagneticButton } from "@/components/site/magnetic-button";
+import { BrandMark } from "@/components/site/brand-mark";
 import { cn } from "@/lib/utils";
 
 
@@ -39,10 +40,7 @@ export function SiteHeader() {
         )}
       >
         <Link to="/" className="flex items-center gap-2 pl-2">
-          <span className="bg-primary text-primary-foreground font-display grid size-8 place-items-center rounded-xl text-sm font-bold">
-            R
-          </span>
-          <span className="font-display text-lg font-bold tracking-tight">RetailX</span>
+          <BrandMark size={30} />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
