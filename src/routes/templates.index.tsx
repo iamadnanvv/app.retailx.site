@@ -8,9 +8,8 @@ import {
   landingTemplates,
   templateCategoryList,
   templateScores,
-  buildTemplateProject,
 } from "@/lib/templates/library";
-import { upsertProject } from "@/lib/builder/storage";
+import { useTemplateProject } from "@/lib/use-template-project";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/templates/")({
