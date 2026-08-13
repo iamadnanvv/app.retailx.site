@@ -1,10 +1,8 @@
-import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, Check, Database, Moon, Smartphone } from "lucide-react";
-import { toast } from "sonner";
 import { Reveal } from "@/components/site/reveal";
-import { upsertProject } from "@/lib/builder/storage";
+import { useTemplateProject } from "@/lib/use-template-project";
 import {
-  buildTemplateProject,
   templateBySlug,
   templateNodes,
   templateScores,
@@ -80,19 +78,13 @@ function TemplateMissing() {
 
 function TemplateDetail() {
   const { slug } = Route.useLoaderData();
-  const navigate = useNavigate();
+  const { useTemplate, pending } = useTemplateProject();
   const template = templateBySlug(slug);
   if (!template) throw notFound();
 
   const scores = templateScores(template);
   const sections = templateNodes(template).map((n) => n.type);
 
-  const use = () => {
-    const project = buildTemplateProject(template);
-    upsertProject(project);
-    toast.success(`${template.name} duplicated into your workspace`);
-    void navigate({ to: "/editor/$projectId", params: { projectId: project.id } });
-  };
 
   return (
     <div className="mx-auto max-w-5xl px-6 pb-32">
@@ -112,10 +104,11 @@ function TemplateDetail() {
         <div className="mt-8 flex flex-wrap gap-3">
           <button
             type="button"
-            onClick={use}
+            onClick={() => useTemplate(template.slug)}
+            disabled={pending}
             className="bg-primary text-primary-foreground inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition hover:brightness-110 active:scale-95"
           >
-            <Check className="size-4" /> Use this template
+            <Check className="size-4" /> {pending ? "Creating…" : "Use this template"}
           </button>
           <span className="glass text-muted-foreground inline-flex items-center gap-4 rounded-full px-4 py-2.5 text-xs">
             <span className="inline-flex items-center gap-1">
