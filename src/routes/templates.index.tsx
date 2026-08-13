@@ -2,8 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Database, Moon, Smartphone } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Reveal } from "@/components/site/reveal";
-import { useNavigate } from "@tanstack/react-router";
-import { toast } from "sonner";
 import {
   landingTemplates,
   templateCategoryList,
@@ -56,7 +54,7 @@ function Score({ label, value }: { label: string; value: number }) {
 function Templates() {
   const [active, setActive] = useState<string>("All");
   const [query, setQuery] = useState("");
-  const navigate = useNavigate();
+  const { useTemplate, pending } = useTemplateProject();
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -67,15 +65,6 @@ function Templates() {
           `${t.name} ${t.category} ${t.blurb}`.toLowerCase().includes(q)),
     );
   }, [active, query]);
-
-  const useTemplate = (slug: string) => {
-    const template = landingTemplates.find((t) => t.slug === slug);
-    if (!template) return;
-    const project = buildTemplateProject(template);
-    upsertProject(project);
-    toast.success(`${template.name} duplicated into your workspace`);
-    void navigate({ to: "/editor/$projectId", params: { projectId: project.id } });
-  };
 
   return (
     <div className="px-6 pb-32">
@@ -187,6 +176,7 @@ function Templates() {
                 <button
                   type="button"
                   onClick={() => useTemplate(template.slug)}
+                  disabled={pending}
                   className="bg-primary text-primary-foreground inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition hover:brightness-110 active:scale-95"
                 >
                   <Check className="size-4" /> Use this template
