@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useUser, useOrganizationList } from "@clerk/tanstack-react-start";
 import { ArrowUpRight, CheckCircle2, Circle, PencilRuler, Plus, Rocket, Users } from "lucide-react";
 import { readOnboarding } from "@/lib/onboarding";
-import { loadProjects } from "@/lib/builder/storage";
-import type { BuilderProject } from "@/lib/builder/types";
+import { listProjects } from "@/lib/api.functions";
+import { useWorkspace } from "@/lib/use-workspace";
 
 
 export const Route = createFileRoute("/_app/dashboard")({
@@ -26,19 +27,17 @@ function Dashboard() {
   const onboarding = readOnboarding(user);
   const orgCount = isLoaded ? (userMemberships?.data?.length ?? 0) : 0;
 
-  const [projects, setProjects] = useState<BuilderProject[]>([]);
-  const refresh = useCallback(() => setProjects(loadProjects()), []);
-  useEffect(() => {
-    refresh();
-    window.addEventListener("retailx:projects", refresh);
-    return () => window.removeEventListener("retailx:projects", refresh);
-  }, [refresh]);
+  const { workspaceId, workspace } = useWorkspace();
+  const list = useServerFn(listProjects);
+  const projectsQuery = useQuery({
+    queryKey: ["projects", workspaceId],
+    enabled: Boolean(workspaceId),
+    queryFn: () => list({ data: { workspaceId: workspaceId! } }),
+  });
+  const projects = projectsQuery.data ?? [];
 
-  const recent = [...projects]
-    .sort((a, b) => +new Date(b.updatedAt) - +new Date(a.updatedAt))
-    .slice(0, 5);
+  const recent = projects.slice(0, 5);
   const liveCount = projects.filter((p) => p.publishedAt).length;
-  const deployCount = projects.reduce((n, p) => n + p.deployments.length, 0);
 
 
   const steps = [
@@ -68,9 +67,13 @@ function Dashboard() {
       </div>
 
       <div className="mt-8 grid gap-4 md:grid-cols-4">
-        <Stat label="Workspace" value={onboarding.workspaceName || "Not set"} hint="Personal" />
+        <Stat
+          label="Workspace"
+          value={workspace?.name || onboarding.workspaceName || "Not set"}
+          hint={workspace?.plan ? `${workspace.plan} plan` : "Personal"}
+        />
         <Stat label="Sites" value={String(projects.length)} hint={`${liveCount} live`} />
-        <Stat label="Deployments" value={String(deployCount)} hint="All projects" />
+        <Stat label="Live sites" value={String(liveCount)} hint="Published" />
         <Stat label="Organizations" value={String(orgCount)} hint="Team workspaces" />
       </div>
       <div className="mt-4">
@@ -139,7 +142,7 @@ function Dashboard() {
                 <PencilRuler className="text-primary size-4 shrink-0" />
                 <span className="min-w-0 flex-1 truncate font-medium">{p.name}</span>
                 <span className="text-muted-foreground text-xs">
-                  {p.pages.length} page{p.pages.length === 1 ? "" : "s"} ·{" "}
+                  {p.pageCount} page{p.pageCount === 1 ? "" : "s"} ·{" "}
                   {p.publishedAt ? "Live" : "Draft"} · {new Date(p.updatedAt).toLocaleDateString()}
                 </span>
                 <Link

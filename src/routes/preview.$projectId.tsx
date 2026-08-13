@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
-import { loadProjects } from "@/lib/builder/storage";
+import { getProject } from "@/lib/api.functions";
 import { renderPageDocument } from "@/lib/builder/render";
 import type { BuilderProject } from "@/lib/builder/types";
 
@@ -19,15 +21,36 @@ export const Route = createFileRoute("/preview/$projectId")({
 
 function PreviewPage() {
   const { projectId } = Route.useParams();
-  const [project, setProject] = useState<BuilderProject | null>(null);
+  const fetchProject = useServerFn(getProject);
   const [pageIndex, setPageIndex] = useState(0);
 
-  useEffect(() => {
-    setProject(loadProjects().find((p) => p.id === projectId) ?? null);
-  }, [projectId]);
+  const query = useQuery({
+    queryKey: ["preview", projectId],
+    queryFn: () => fetchProject({ data: { projectId } }),
+  });
 
-  if (!project) {
+  const project = query.data
+    ? ({
+        ...(query.data.project as unknown as BuilderProject),
+        deployments: [],
+      } as BuilderProject)
+    : null;
+
+  if (query.isPending) {
     return <div className="grid min-h-screen place-items-center text-sm">Loading preview…</div>;
+  }
+
+  if (!project || !project.pages?.length) {
+    return (
+      <div className="grid min-h-screen place-items-center text-center text-sm">
+        <div>
+          <p className="text-muted-foreground">This project isn’t available.</p>
+          <Link to="/projects" className="text-primary mt-2 inline-block">
+            Back to projects
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   const page = project.pages[pageIndex] ?? project.pages[0];
@@ -43,7 +66,7 @@ function PreviewPage() {
           <ArrowLeft className="size-3.5" /> Back to editor
         </Link>
         <span className="text-muted-foreground text-xs">{project.domain}</span>
-        <div className="ml-auto flex gap-1">
+        <div className="ml-auto flex flex-wrap gap-1">
           {project.pages.map((p, i) => (
             <button
               key={p.id}

@@ -24,7 +24,6 @@ import { toast } from "sonner";
 import { blockDefs, blockDefMap } from "@/lib/builder/blocks";
 import { baseCss, buildStaticSite, mergeStyle, renderNode } from "@/lib/builder/render";
 import { useProjectEditor } from "@/lib/builder/use-project-editor";
-import { upsertProject } from "@/lib/builder/storage";
 import { uid, type BlockType, type Breakpoint, type NodeStyle } from "@/lib/builder/types";
 import { cn } from "@/lib/utils";
 
@@ -67,6 +66,14 @@ function EditorPage() {
   const [dropIndex, setDropIndex] = useState<number | null>(null);
 
 
+  if (e.loading) {
+    return (
+      <div className="grid min-h-[60vh] place-items-center">
+        <div className="border-primary/30 border-t-primary size-8 animate-spin rounded-full border-2" />
+      </div>
+    );
+  }
+
   if (!e.project || !e.page) {
     return (
       <div className="grid min-h-[60vh] place-items-center text-sm">
@@ -83,29 +90,16 @@ function EditorPage() {
   const { project, page, selected, breakpoint } = e;
   const style: NodeStyle = selected ? mergeStyle(selected, breakpoint) : {};
 
-  const publish = () => {
-    const { files, bytes } = buildStaticSite(project);
-    const next = {
-      ...structuredClone(project),
-      publishedAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      deployments: [
-        {
-          id: uid(),
-          at: new Date().toISOString(),
-          pages: project.pages.length,
-          bytes,
-          status: "live" as const,
-          note: `Published ${files.length} files`,
-        },
-        ...project.deployments.map((x) => ({ ...x, status: "rolled-back" as const })),
-      ],
-    };
-    e.setProject(() => next);
-    upsertProject(next);
-    toast.success("Published to the edge", { description: `${files.length} files · ${(bytes / 1024).toFixed(1)} KB` });
+  const publish = async () => {
+    try {
+      const res = await e.publish("production");
+      toast.success("Published to the edge", {
+        description: (res as { url?: string | null })?.url ?? undefined,
+      });
+    } catch (error) {
+      toast.error((error as Error).message || "Publish failed");
+    }
   };
-
 
   const exportSite = () => {
     const { files } = buildStaticSite(project);
