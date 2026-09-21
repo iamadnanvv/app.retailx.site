@@ -1,0 +1,13 @@
+CREATE POLICY "service role access only" ON public.workspaces FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service role access only" ON public.workspace_members FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service role access only" ON public.projects FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service role access only" ON public.deployments FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service role access only" ON public.collections FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service role access only" ON public.collection_items FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service role access only" ON public.assets FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service role access only" ON public.form_submissions FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service role access only" ON public.page_views FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service role access only" ON public.activity_logs FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service role access only" ON public.api_keys FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service role access only" ON public.workspace_tasks FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service role access only" ON public.workspace_comments FOR ALL TO service_role USING (true) WITH CHECK (true);
